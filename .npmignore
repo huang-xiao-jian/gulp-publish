@@ -1,0 +1,6 @@
+test
+.travis.yml
+.jshintrc
+.editorconfig
+.DS_Store
+coverage

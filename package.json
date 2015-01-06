@@ -1,0 +1,44 @@
+{
+  "name": "gulp-releases",
+  "version": "0.0.1",
+  "description": "Replaces references to non-optimized scripts or stylesheets into a set of HTML files (or any templates/views).",
+  "main": "index.js",
+  "author": "bornkiller <hjj491229492@hotmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bornkiller/gulp-release.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bornkiller/gulp-release/issues"
+  },
+  "keywords": [
+    "gulp-plugin",
+    "usemin",
+    "release"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "gulp-util": "~2.2.14",
+    "through2": "~0.5.1",
+    "glob": "~4.0.4"
+  },
+  "devDependencies": {
+    "event-stream": "~3.1.0",
+    "gulp": "~3.8.6",
+    "gulp-jshint": "~1.7.0",
+    "gulp-minify-css": "~0.3.0",
+    "gulp-minify-html": "~0.1.1",
+    "gulp-rev": "~0.4.2",
+    "gulp-uglify": "~0.3.1",
+    "gulp-util": "~2.2.14",
+    "istanbul": "^0.3.5",
+    "mocha": "^2.1.0"
+  },
+  "scripts": {
+    "test-visual": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report html",
+    "test-travis": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly"
+  }
+}
