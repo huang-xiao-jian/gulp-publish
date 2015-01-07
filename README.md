@@ -75,7 +75,8 @@ An completed example form acts below:
 ```
 
 The example HTML file will output below:
-``html
+
+```html
 <!DOCTYPE html>
 <html>
 <head lang="en">
