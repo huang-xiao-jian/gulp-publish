@@ -88,4 +88,23 @@ describe('utils module', function () {
         done();
       }))
   });
+
+  it('should resolve source into destiny when add tags', function (done) {
+    gulp.src('./test/fixture/special.html')
+      .pipe(through(function(file, enc, callback) {
+        var expected =
+          '<!DOCTYPE html><html><head lang="en"><meta charset="UTF-8"><title>gulp release</title>' +
+          '<link rel="stylesheet" href="/style/build.css"/>' +
+          '<script src="/script/build.js"></script>' +
+          '</head><body></body></html>';
+
+        var blocks = utils.getSplitBlock(file.contents.toString());
+        var result = utils.resolveSourceToDestiny(blocks);
+        (utils._escape(result)).should.equal(utils._escape(expected));
+        callback();
+      }, function(callback) {
+        callback();
+        done();
+      }))
+  });
 });
