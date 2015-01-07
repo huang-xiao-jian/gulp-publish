@@ -35,6 +35,20 @@ utils.getFilePath = function(block) {
     });
 };
 
+utils.resolveFileSource = function(blocks) {
+  return blocks
+    .filter(function(block) {
+      return startMirrorReg.test(block);
+    })
+    .map(function(block) {
+      return {
+        type: utils.getBlockType(block),
+        destiny: utils.getBlockPath(block),
+        files: utils.getFilePath(block)
+      }
+    });
+};
+
 utils.resolveSourceToDestiny = function(blocks) {
   var result = blocks.map(function(block) {
     if (!startMirrorReg.test(block)) return block;

@@ -51,18 +51,47 @@ describe('utils module', function () {
       }))
   });
 
-  it.skip('should resolve file path from blocks', function (done) {
-    var ScriptPath = ['/script/origin.js', '/script/complex.js'];
-    var StylePath = ['/style/origin.css', '/script/complex.css'];
+  it('should resolve file path from blocks', function (done) {
     gulp.src('./test/fixture/source.html')
       .pipe(through(function(file, enc, callback) {
-        var expected = [
-          '<!DOCTYPE html><html><head lang="en"><meta charset="UTF-8"><title>gulp release</title>',
-          '<!-- build:css /style/build.css --><link rel="stylesheet" href="/style/origin.css"><link rel="stylesheet" href="/style/complex.css"><!-- endbuild -->',
-          '<!-- build:js /style/build.js --><script src="/script/origin.js"></script><script src="/script/complex.js"></script><!-- endbuild -->',
-          '</head><body></body></html>'
-        ];
-        var result = utils.getSplitBlock(file.contents.toString());
+        var blocks = utils.getSplitBlock(file.contents.toString());
+        var result = utils.resolveFileSource(blocks);
+        result[0].should.eql({
+          type: 'css',
+          destiny: '/style/build.css',
+          files: ['/style/origin.css', '/style/complex.css']
+        });
+
+        result[1].should.eql({
+          type: 'js',
+          destiny: '/script/build.js',
+          files: ['/script/origin.js', '/script/complex.js']
+        });
+
+        callback();
+      }, function(callback) {
+        callback();
+        done();
+      }))
+  });
+
+  it('should resolve file path from empty blocks', function (done) {
+    gulp.src('./test/fixture/special.html')
+      .pipe(through(function(file, enc, callback) {
+        var blocks = utils.getSplitBlock(file.contents.toString());
+        var result = utils.resolveFileSource(blocks);
+        result[0].should.eql({
+          type: 'css',
+          destiny: '/style/build.css',
+          files: []
+        });
+
+        result[1].should.eql({
+          type: 'js',
+          destiny: '/script/build.js',
+          files: []
+        });
+
         callback();
       }, function(callback) {
         callback();
