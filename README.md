@@ -1,12 +1,12 @@
-# gulp-release
+# gulp-publish
 
-![Build Status](https://img.shields.io/travis/bornkiller/gulp-release/master.svg?style=flat)
-![Coverage Report](http://img.shields.io/coveralls/bornkiller/gulp-release.svg?style=flat)
-![Package Dependency](https://david-dm.org/bornkiller/gulp-release.svg?style=flat)
-![Package DevDependency](https://david-dm.org/bornkiller/gulp-release/dev-status.svg?style=flat)
+![Build Status](https://img.shields.io/travis/bornkiller/gulp-publish/master.svg?style=flat)
+![Coverage Report](http://img.shields.io/coveralls/bornkiller/gulp-publish.svg?style=flat)
+![Package Dependency](https://david-dm.org/bornkiller/gulp-publish.svg?style=flat)
+![Package DevDependency](https://david-dm.org/bornkiller/gulp-publish/dev-status.svg?style=flat)
 
 ## Attention
-`gulp-releases` make out from `gulp-usemin` branch for some entire different idea, and not
+`gulp-publish` make out from `gulp-usemin` branch for some entire different idea, and not
 ready for production environment.
 
 Replace references to release scripts or stylesheets HTML tags, and provide API for resolve
@@ -14,20 +14,20 @@ linked files identified by `src` or `href`.
 
 ## Usage
 
-First, install `gulp-releases` as a development dependency:
+First, install `gulp-publish` as a development dependency:
 
 ```shell
-npm install --save-dev gulp-releases
+npm install --save-dev gulp-publish
 ```
 
 Then, add it to your `gulpfile.js`:
 
 ```javascript
-var release = require('gulp-releases');
+var release = require('gulp-publish');
 
-gulp.task('release', function () {
+gulp.task('publish', function () {
   return gulp.src('*.html')
-      .pipe(release()))
+      .pipe(publish()))
       .pipe(gulp.dest('build/'));
 });
 ```
