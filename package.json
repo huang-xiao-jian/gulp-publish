@@ -1,7 +1,7 @@
 {
   "name": "gulp-releases",
-  "version": "0.0.1",
-  "description": "Replaces references to non-optimized scripts or stylesheets into a set of HTML files (or any templates/views).",
+  "version": "0.0.5",
+  "description": "Replaces references to non-optimized scripts or stylesheets into a set of HTML files.",
   "main": "index.js",
   "author": "bornkiller <hjj491229492@hotmail.com>",
   "repository": {
