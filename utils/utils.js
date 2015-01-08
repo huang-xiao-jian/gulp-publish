@@ -1,3 +1,8 @@
+var fs = require('vinyl-fs');
+var path =require('path');
+var through = require('through-gulp');
+var gutil = require('gulp-util');
+
 var startReg = /<!--\s+build:\w+\s+\/?[^\s]+\s+-->/gim;
 var startMirrorReg = /<!--\s+build:\w+\s+\/?[^\s]+\s+-->/i;
 var endReg = /<!--\s*endbuild\s*-->/gim;
@@ -35,7 +40,7 @@ utils.getFilePath = function(block) {
     });
 };
 
-utils.resolveFileSource = function(blocks) {
+utils.getFileSource = function(blocks) {
   return blocks
     .filter(function(block) {
       return startMirrorReg.test(block);
@@ -49,14 +54,57 @@ utils.resolveFileSource = function(blocks) {
     });
 };
 
+utils.resolveFileSource = function(sources, options) {
+  if (!sources || !options) return false;
+
+  for (var i = 0; i < sources.length; i++) {
+    var files = sources[i].files;
+    var destiny = path.join('./', path.dirname(sources[i].destiny));
+    var fileName = path.basename(sources[i].destiny);
+    var parser = options[sources[i].type];
+
+    if (files.length === 0 || !destiny || !fileName) return false;
+    if (parser && parser.length !== 0) {
+      utils.pathTraverse(files, parser).pipe(utils.concat(fileName)).pipe(fs.dest(destiny));
+    }
+  }
+};
+
+utils.pathTraverse = function(originPath, flow) {
+  var targetPath = originPath.map(function(value) {
+    return path.join('./', value);
+  });
+  var stream = fs.src(targetPath);
+  for (var i = 0; i < flow.length; i++) {
+    stream = stream.pipe(flow[i].generator.call(null, flow[i].config));
+  }
+  return stream;
+};
+
 utils.resolveSourceToDestiny = function(blocks) {
   var result = blocks.map(function(block) {
     if (!startMirrorReg.test(block)) return block;
     if (utils.getBlockType(block) === 'js') return '<script src="' + utils.getBlockPath(block) + '"></script>';
     if (utils.getBlockType(block) === 'css') return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + '"/>';
+    if (utils.getBlockType(block) === 'remove') return null;
   });
 
   return result.join('\n');
+};
+
+utils.concat = function(fileName) {
+  var assetStorage = new Buffer(0);
+  var separator = new Buffer('\n');
+  return through(function(file, enc, callback) {
+    assetStorage = Buffer.concat([assetStorage, file.contents, separator]);
+    callback();
+  }, function(callback) {
+    this.push(new gutil.File({
+      path: fileName,
+      contents: assetStorage
+    }));
+    callback();
+  })
 };
 
 utils._escape = function(string) {
