@@ -4,3 +4,4 @@ test
 .editorconfig
 .DS_Store
 coverage
+build
