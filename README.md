@@ -56,7 +56,7 @@ Particularly, when `type` equal 'remove', the block will be destroyed.
 <!-- endbuild -->
 ```
 
-Also, support add tags when build, below will insert `<script src="/build/script/build.js">' into html.
+Also, support add tags when build, below will insert `<script src="/build/script/build.js">` into html.
 
 ```html
 <!-- build:js /build/script/build.js -->
