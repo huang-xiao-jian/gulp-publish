@@ -23,7 +23,7 @@ npm install --save-dev gulp-publish
 Then, add it to your `gulpfile.js`:
 
 ```javascript
-var release = require('gulp-publish');
+var publish = require('gulp-publish');
 
 gulp.task('publish', function () {
   return gulp.src('*.html')
@@ -47,6 +47,21 @@ Any link script markup
 **Remember not miss the block split flag**
 Between normal HTML and block, block and block, block and normal HTML, add split flag
 `<!-- split -->`.
+
+Particularly, when `type` equal 'remove', the block will be destroyed.
+
+```html
+<!-- build:remove /build/script/build.js -->
+<script src="/script/origin.js"></script>
+<!-- endbuild -->
+```
+
+Also, support add tags when build, below will insert `<script src="/build/script/build.js">' into html.
+
+```html
+<!-- build:js /build/script/build.js -->
+<!-- endbuild -->
+```
 
 An completed example form acts below:
 
@@ -94,7 +109,58 @@ The example HTML file will output below:
 ```
 
 ## Options
-progress.
+Complete options act like below:
+
+```javascript
+{
+  enableResolve: true,
+  css: [{
+    generator: cssmin,
+    config: {}
+  }],
+  js: [{
+    generator: uglify,
+    config: {
+      mangle: true
+    }
+  }],
+  debug: true
+}
+```
+
+### enableResolve
+type: Boolean
+whether resolve related files that `script`, `link` point. if `false`, will only output resolved HTML file.
+if `true`, will try resolve linked `javascript`, `css` files.
+
+### css
+type: Array
+Item has `generator`, `config` property, `generator` is function `gulp-plugin` exports, config is object
+to config the `gulp-plugin`.
+How to resolve css files. if omitted or null, it will never active file resolve.
+
+### js
+type: Array
+Item has `generator`, `config` property, `generator` is function `gulp-plugin` exports, config is object
+to config the `gulp-plugin`.
+How to resolve javascript files. if omitted or null, it will never active file resolve.
+
+### debug
+whether used in debug environment, for unit test.
+
+For some scene, you did special structure, such as build simple server to render `less`, `coffee` files, and import
+like below:
+
+```html
+<link rel="stylesheet" href="/style/index.less" />
+<script src="/script/index.coffee"></script>
+```
+
+Making an assumption, put `gulp-less`, `gulp-coffee` into `css` or `js` config array will achieve the same thing,
+but I think provide `less`, `coffee` type is necessary.
 
 ## Contact
 **hjj491229492@hotmail.com**
+
+## LICENSE
+MIT
