@@ -12,10 +12,12 @@ function publish(options) {
     if (file.isStream()) return callback(new gutil.PluginError(PLUGIN, 'Streams are not supported!'));
 
     var blocks = utils.getSplitBlock(file.contents.toString());
-    var fileSource = utils.getFileSource(blocks);
-    utils.resolveFileSource(fileSource, options);
     var result = utils.resolveSourceToDestiny(blocks);
     file.contents = new Buffer(result);
+    if (options && options.enableResolve) {
+      var fileSource = utils.getFileSource(blocks);
+      utils.resolveFileSource(fileSource, options);
+    }
     callback(null, file);
   }, function(callback) {
     callback();

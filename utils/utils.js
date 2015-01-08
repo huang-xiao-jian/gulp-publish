@@ -65,14 +65,15 @@ utils.resolveFileSource = function(sources, options) {
 
     if (files.length === 0 || !destiny || !fileName) return false;
     if (parser && parser.length !== 0) {
-      utils.pathTraverse(files, parser).pipe(utils.concat(fileName)).pipe(fs.dest(destiny));
+      utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(fileName)).pipe(fs.dest(destiny));
     }
   }
 };
 
-utils.pathTraverse = function(originPath, flow) {
+utils.pathTraverse = function(originPath, flow, debug) {
   var targetPath = originPath.map(function(value) {
-    return path.join('./', value);
+    if (!debug) return path.join('./', value);
+    return path.join('./', '/test/fixture',  value);
   });
   var stream = fs.src(targetPath);
   for (var i = 0; i < flow.length; i++) {
