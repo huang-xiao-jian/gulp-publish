@@ -48,7 +48,7 @@ describe('plugin module', function () {
       (utils._escape(fs.readFileSync(path.join(process.cwd(), '/build/script/build.js')).toString())).should.equal(utils._escape(expectedJs));
       (utils._escape(fs.readFileSync(path.join(process.cwd(), '/build/style/build.css')).toString())).should.equal(utils._escape(expectedCss));
       done();
-    }, 100);
+    }, 200);
   });
 
   it('should resolve less files when enabled', function (done) {
