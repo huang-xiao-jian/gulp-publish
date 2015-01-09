@@ -14,6 +14,9 @@ var typeReg = /<!--\s+build:(\w+)\s+\/?[^\s]+\s+-->/i;
 var pathReg = /<!--\s+build:\w+\s+(\/?[^\s]+)\s+-->/i;
 var utils = {};
 
+utils._stylesheet = ['css', 'less', 'stylus', 'sass'];
+utils._script = ['js', 'coffee'];
+
 utils.getSplitBlock = function(string) {
   return string.split(splitReg);
 };
@@ -35,8 +38,8 @@ utils.getFilePath = function(block) {
       return !spaceReg.test(value);
     })
     .map(function(value) {
-      if (utils.getBlockType(block) === 'js') return jsReg.exec(value.replace(/^\s*/, ''))[2];
-      if (utils.getBlockType(block) === 'css') return cssReg.exec(value.replace(/^\s*/, ''))[2];
+      if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return jsReg.exec(value.replace(/^\s*/, ''))[2];
+      if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return cssReg.exec(value.replace(/^\s*/, ''))[2];
     });
 };
 
@@ -87,8 +90,8 @@ utils.pathTraverse = function(originPath, flow, debug) {
 utils.resolveSourceToDestiny = function(blocks) {
   var result = blocks.map(function(block) {
     if (!startMirrorReg.test(block)) return block;
-    if (utils.getBlockType(block) === 'js') return '<script src="' + utils.getBlockPath(block) + '"></script>';
-    if (utils.getBlockType(block) === 'css') return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + '"/>';
+    if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + '"></script>';
+    if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + '"/>';
     if (utils.getBlockType(block) === 'remove') return null;
   });
 
