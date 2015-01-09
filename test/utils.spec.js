@@ -179,12 +179,12 @@ describe('utils module', function () {
       {
         type: 'js',
         destiny: '/script/build.js',
-        files: ['/test/fixture/script/origin.js', '/test/fixture/script/complex.js']
+        files: ['script/origin.js', 'script/complex.js']
       },
       {
         type: 'css',
         destiny: '/style/build.css',
-        files: ['/test/fixture/style/origin.css', '/test/fixture/style/complex.css']
+        files: ['style/origin.css', 'style/complex.css']
       }
     ];
 
@@ -201,7 +201,8 @@ describe('utils module', function () {
           config: {}
         }
       ],
-      directory: './build'
+      directory: './build',
+      debug: true
     };
 
     function generateLess() {
@@ -213,6 +214,43 @@ describe('utils module', function () {
     utils.resolveFileSource(sources, options);
 
     setTimeout(function() {
+      var content;
+      content = utils._escape(fs.readFileSync(path.join(process.cwd(), './build/script/build.js')).toString());
+      content.should.equal(utils._escape("angular.module('cloud', []);angular.module('cloud').controller('MainCtrl', function() {});"));
+      content = utils._escape(fs.readFileSync(path.join(process.cwd(), './build/style/build.css')).toString());
+      content.should.equal(utils._escape("body { font-size: 16px; } body { overflow: hidden;}"));
+      done();
+    }, 100);
+  });
+
+  it('should concat source files when un-declared', function (done) {
+    var sources = [
+      {
+        type: 'js',
+        destiny: '/script/build.js',
+        files: ['script/origin.js', 'script/complex.js']
+      },
+      {
+        type: 'css',
+        destiny: '/style/build.css',
+        files: ['style/origin.css', 'style/complex.css']
+      }
+    ];
+
+    var options = {
+      directory: './build',
+      debug: true
+    };
+
+    function generateLess() {
+      return through(function (file, enc, callback) {
+        callback(null, file);
+      });
+    }
+
+    utils.resolveFileSource(sources, options);
+
+    setTimeout(function () {
       var content;
       content = utils._escape(fs.readFileSync(path.join(process.cwd(), './build/script/build.js')).toString());
       content.should.equal(utils._escape("angular.module('cloud', []);angular.module('cloud').controller('MainCtrl', function() {});"));

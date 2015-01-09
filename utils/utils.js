@@ -63,11 +63,11 @@ utils.resolveFileSource = function(sources, options) {
     var parser = options[sources[i].type];
 
     if (files.length === 0 || !destiny) return false;
-    if (parser && parser.length === 0)  {
+    if (!parser || parser.length === 0)  {
       utils.pathTraverse(files, [{
         generator: utils.concat,
         config: destiny
-      }], options.debug).pipe(fs.dest(options.directory));
+      }], options.debug).pipe(fs.dest(path.join('./', options.directory)));
     }
     if (parser && parser.length !== 0) {
       utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(fs.dest(path.join('./', options.directory)));
