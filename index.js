@@ -9,10 +9,11 @@ var PLUGIN = 'gulp-release';
 function publish(opts) {
   var defaults = {
     enableResolve: false,
+    directory: './build',
     debug: false
   };
-
   var options = utils.shallowMerge(opts, defaults);
+
   return through(function(file, enc, callback) {
     if (file.isNull()) return callback(null, file);
     if (file.isStream()) return callback(new gutil.PluginError(PLUGIN, 'Streams are not supported!'));
@@ -20,13 +21,11 @@ function publish(opts) {
     var blocks = utils.getSplitBlock(file.contents.toString());
     var result = utils.resolveSourceToDestiny(blocks);
     file.contents = new Buffer(result);
-    if (options && options.enableResolve) {
+    if (options.enableResolve) {
       var fileSource = utils.getFileSource(blocks);
       utils.resolveFileSource(fileSource, options);
     }
     callback(null, file);
-  }, function(callback) {
-    callback();
   });
 }
 

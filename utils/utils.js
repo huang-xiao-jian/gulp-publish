@@ -59,13 +59,18 @@ utils.resolveFileSource = function(sources, options) {
 
   for (var i = 0; i < sources.length; i++) {
     var files = sources[i].files;
-    var destiny = path.join('./', path.dirname(sources[i].destiny));
-    var fileName = path.basename(sources[i].destiny);
+    var destiny = path.join('./', sources[i].destiny);
     var parser = options[sources[i].type];
 
-    if (files.length === 0 || !destiny || !fileName) return false;
+    if (files.length === 0 || !destiny) return false;
+    if (parser && parser.length === 0)  {
+      utils.pathTraverse(files, [{
+        generator: utils.concat,
+        config: destiny
+      }], options.debug).pipe(fs.dest(options.directory));
+    }
     if (parser && parser.length !== 0) {
-      utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(fileName)).pipe(fs.dest(destiny));
+      utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(fs.dest(path.join('./', options.directory)));
     }
   }
 };
