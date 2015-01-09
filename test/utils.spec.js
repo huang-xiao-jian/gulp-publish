@@ -130,10 +130,7 @@ describe('utils module', function () {
       done();
     });
 
-    utils.pathTraverse(['/test/fixture/script/origin.js'], [{
-      generator: generateLess,
-      config: {}
-    }]).pipe(success);
+    utils.pathTraverse(['/script/origin.js'], [generateLess()], true).pipe(success);
   });
 
   it('should achieve path traverse when relative style path', function (done) {
@@ -149,10 +146,7 @@ describe('utils module', function () {
       done();
     });
 
-    utils.pathTraverse(['./test/fixture/script/origin.js'], [{
-      generator: generateLess,
-      config: {}
-    }]).pipe(success);
+    utils.pathTraverse(['/script/origin.js'], [generateLess()], true).pipe(success);
   });
 
   it('should resolve source into destiny', function (done) {
@@ -188,28 +182,18 @@ describe('utils module', function () {
       }
     ];
 
-    var options = {
-      js: [
-        {
-          generator: generateLess,
-          config: {}
-        }
-      ],
-      css: [
-        {
-          generator: generateLess,
-          config: {}
-        }
-      ],
-      directory: './build',
-      debug: true
-    };
-
     function generateLess() {
       return through(function(file, enc, callback) {
         callback(null, file);
       });
     }
+
+    var options = {
+      js: [generateLess()],
+      css: [generateLess()],
+      directory: './build',
+      debug: true
+    };
 
     utils.resolveFileSource(sources, options);
 
@@ -241,12 +225,6 @@ describe('utils module', function () {
       directory: './build',
       debug: true
     };
-
-    function generateLess() {
-      return through(function (file, enc, callback) {
-        callback(null, file);
-      });
-    }
 
     utils.resolveFileSource(sources, options);
 

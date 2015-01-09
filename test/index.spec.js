@@ -36,16 +36,8 @@ describe('plugin module', function () {
     gulp.src('./test/fixture/source.html')
       .pipe(publish({
         enableResolve: true,
-        css: [{
-          generator: cssmin,
-          config: {}
-        }],
-        js: [{
-          generator: uglify,
-          config: {
-            mangle: true
-          }
-        }],
+        css: [cssmin({})],
+        js: [uglify()],
         debug: true
       }))
       .pipe(gulp.dest('./build'));
