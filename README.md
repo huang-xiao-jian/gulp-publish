@@ -56,10 +56,13 @@ Particularly, when `type` equal 'remove', the block will be destroyed.
 <!-- endbuild -->
 ```
 
-Also, support add tags when build, below will insert `<script src="/build/script/build.js">` into html.
+Also, support add tags when build, below will insert `<script src="/build/script/build.js">` , '<link rel="stylesheet" href="/style/build.css"/>' into html.
 
 ```html
 <!-- build:js /build/script/build.js -->
+<!-- endbuild -->
+
+<!-- build:css /style/build.css -->
 <!-- endbuild -->
 ```
 
@@ -114,36 +117,27 @@ Complete options act like below:
 ```javascript
 {
   enableResolve: true,
-  css: [{
-    generator: cssmin,
-    config: {}
-  }],
-  js: [{
-    generator: uglify,
-    config: {
-      mangle: true
-    }
-  }],
+  directory: './build',
+  css: [cssmin({})],
+  js: [uglify({}],
   debug: true
 }
 ```
 
 ### enableResolve
-type: Boolean
-whether resolve related files that `script`, `link` point. if `false`, will only output resolved HTML file.
-if `true`, will try resolve linked `javascript`, `css` files.
+Type: Boolean
+
+whether resolve related files that `script`, `link` point. if `false`, will only output resolved HTML file. if `true`, will try resolve linked `javascript`, `css` files.
 
 ### css
-type: Array
-Item has `generator`, `config` property, `generator` is function `gulp-plugin` exports, config is object
-to config the `gulp-plugin`.
-How to resolve css files. if omitted or null, it will never active file resolve.
+Type: Array
+
+Value consists of stream object that  `gulp-plugin` generate. Declare how to resolve css files. if omitted or null, will only concat related files.
 
 ### js
-type: Array
-Item has `generator`, `config` property, `generator` is function `gulp-plugin` exports, config is object
-to config the `gulp-plugin`.
-How to resolve javascript files. if omitted or null, it will never active file resolve.
+Type: Array
+
+Value consists of stream object that  `gulp-plugin` generate. Declare how to resolve javascript files. if omitted or null, will only concat related files.
 
 ### debug
 whether used in debug environment, for unit test.
