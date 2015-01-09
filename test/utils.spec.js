@@ -11,6 +11,22 @@ describe('utils module', function () {
   var ScriptComment = '<!-- build:js /build/style/build.js --><script src="/script/origin.js></script><!-- endbuild -->';
   var LessComment = '<!-- build:less /build/style/build.css --><link type="text/css" href="/style/origin.less"><!-- endbuild -->';
 
+  it('should merge object', function () {
+    var source = {
+      title: 'story',
+      content: 'never say goodbye'
+    };
+
+    var destiny = {
+      title: 'love'
+    };
+
+    (utils.shallowMerge(source, destiny)).should.eql({
+      title: 'story',
+      content: 'never say goodbye'
+    })
+  });
+
   it('should get js type', function () {
     utils.getBlockType(StyleComment).should.equal('css');
   });

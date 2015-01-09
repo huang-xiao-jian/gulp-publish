@@ -108,6 +108,16 @@ utils.concat = function(fileName) {
   })
 };
 
+utils.shallowMerge = function(source, destiny) {
+  for (var key in source) {
+    if (source.hasOwnProperty(key)) {
+      destiny[key] = source[key];
+    }
+  }
+
+  return destiny;
+};
+
 utils._escape = function(string) {
   return string.replace(/[\n\s]*/gi, '');
 };
