@@ -41,8 +41,9 @@ Any link script markup
 <!-- endbuild -->
 ```
 
-- **type**: declare the way to resolve internal markups and related files
-- **path**: the file path to output
+- **type**: declare the way to resolve internal markups and related files, e.g `js`, `css`, `less`, `coffee`,
+`stylus`, `sass`. (Linked files should match type)
+- **path**: the file path to output.
 
 **Remember not miss the block split flag**
 Between normal HTML and block, block and block, block and normal HTML, add split flag
@@ -56,7 +57,7 @@ Particularly, when `type` equal 'remove', the block will be destroyed.
 <!-- endbuild -->
 ```
 
-Also, support add tags when build, below will insert `<script src="/build/script/build.js">` , '<link rel="stylesheet" href="/style/build.css"/>' into html.
+Also, support add tags when build, below will insert `<script src="/build/script/build.js">` , `<link rel="stylesheet" href="/style/build.css"/>` into html.
 
 ```html
 <!-- build:js /build/script/build.js -->
@@ -139,8 +140,13 @@ Type: Array
 
 Value consists of stream object that  `gulp-plugin` generate. Declare how to resolve javascript files. if omitted or null, will only concat related files.
 
+### less, stylus, sass, coffee
+Almost the same thing as `css`, `js` above, to resolve correspond files. `less`, `coffee` pass the test, `stylus`, `sass` will dance as well.
+
 ### debug
-whether used in debug environment, for unit test.
+Type: boolean
+
+whether used in debug environment, just for unit test.
 
 For some scene, you did special structure, such as build simple server to render `less`, `coffee` files, and import
 like below:
