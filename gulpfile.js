@@ -1,12 +1,17 @@
 var gulp = require('gulp');
 var htmlmin = require('gulp-htmlmin');
-var cssmin = require('gulp-cssmin');
+var coffee = require('gulp-coffee');
 var uglify = require('gulp-uglify');
+var less = require('gulp-less');
+var cssmin = require('gulp-cssmin');
 var publish = require('./index.js');
 
-gulp.task('test', function() {
+gulp.task('normal', function() {
   gulp.src('./test/fixture/*.html')
-    .pipe(publish())
+    .pipe(publish({
+      enableResolve:false,
+      debug: true
+    }))
     .pipe(htmlmin({
       removeComment: true,
       collapseWhitespace: true
@@ -14,3 +19,20 @@ gulp.task('test', function() {
     .pipe(gulp.dest('./build'));
 });
 
+gulp.task('standard', function() {
+  gulp.src('./test/fixture/*.html')
+    .pipe(publish({
+      enableResolve: true,
+      postfix: 'v0.2.5',
+      debug: true,
+      js: [uglify()],
+      coffee: [coffee()],
+      css: [cssmin()],
+      less: [less()]
+    }))
+    .pipe(htmlmin({
+      removeComment: true,
+      collapseWhitespace: true
+    }))
+    .pipe(gulp.dest('./build'));
+});
