@@ -1,12 +1,24 @@
+/**
+ * A module to replace link, script tags, and provide API for resolve linked files.
+ * @module gulp-publish
+ * @version v0.2.5
+ */
+
+/**
+ * Module dependencies
+ */
 var through = require('through-gulp');
 var gutil = require('gulp-util');
-var path = require('path');
-var fs = require('fs');
-
 var utils = require('./utils/utils.js');
-var PLUGIN = 'gulp-release';
+var PLUGIN = 'gulp-publish';
 
+/**
+ * Return transform stream which resolve HTML files.
+ * @param {object} opts - stream options
+ * @returns {Stream}
+ */
 function publish(opts) {
+  // stream options
   var defaults = {
     enableResolve: false,
     directory: './build',
@@ -18,13 +30,17 @@ function publish(opts) {
     if (file.isNull()) return callback(null, file);
     if (file.isStream()) return callback(new gutil.PluginError(PLUGIN, 'Streams are not supported!'));
 
+    // resolve the HTML files
     var blocks = utils.getSplitBlock(file.contents.toString());
     var result = utils.resolveSourceToDestiny(blocks);
     file.contents = new Buffer(result);
+
+    // resolve the files linked by tag script and link
     if (options.enableResolve) {
       var fileSource = utils.getFileSource(blocks);
       utils.resolveFileSource(fileSource, options);
     }
+
     callback(null, file);
   });
 }
