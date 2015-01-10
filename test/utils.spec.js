@@ -117,22 +117,6 @@ describe('utils module', function () {
       }))
   });
 
-  it('should achieve path traverse when absolute style path', function (done) {
-    function generateLess() {
-      return through(function(file, enc, callback) {
-        callback(null, file);
-      });
-    }
-
-    var success = through(function(file, enc, callback) {
-      file.contents.toString().should.equal("angular.module('cloud', []);");
-      callback(null, file);
-      done();
-    });
-
-    utils.pathTraverse(['/script/origin.js'], [generateLess()], true).pipe(success);
-  });
-
   it('should achieve path traverse when relative style path', function (done) {
     function generateLess() {
       return through(function(file, enc, callback) {
@@ -146,7 +130,7 @@ describe('utils module', function () {
       done();
     });
 
-    utils.pathTraverse(['/script/origin.js'], [generateLess()], true).pipe(success);
+    utils.pathTraverse(['test/fixture/script/origin.js'], [generateLess()]).pipe(success);
   });
 
   it('should resolve source into destiny', function (done) {
@@ -172,13 +156,13 @@ describe('utils module', function () {
     var sources = [
       {
         type: 'js',
-        destiny: '/script/build.js',
-        files: ['script/origin.js', 'script/complex.js']
+        destiny: 'script/build.js',
+        files: ['test/fixture/script/origin.js', 'test/fixture/script/complex.js']
       },
       {
         type: 'css',
-        destiny: '/style/build.css',
-        files: ['style/origin.css', 'style/complex.css']
+        destiny: 'style/build.css',
+        files: ['test/fixture/style/origin.css', 'test/fixture/style/complex.css']
       }
     ];
 
@@ -211,13 +195,13 @@ describe('utils module', function () {
     var sources = [
       {
         type: 'js',
-        destiny: '/script/build.js',
-        files: ['script/origin.js', 'script/complex.js']
+        destiny: 'script/build.js',
+        files: ['test/fixture/script/origin.js', 'test/fixture/script/complex.js']
       },
       {
         type: 'css',
-        destiny: '/style/build.css',
-        files: ['style/origin.css', 'style/complex.css']
+        destiny: 'style/build.css',
+        files: ['test/fixture/style/origin.css', 'test/fixture/style/complex.css']
       }
     ];
 

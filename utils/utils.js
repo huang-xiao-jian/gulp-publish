@@ -30,6 +30,7 @@
  */
 var path =require('path');
 var fs = require('fs');
+var crypto = require('crypto');
 var vfs = require('vinyl-fs');
 var through = require('through-gulp');
 var gutil = require('gulp-util');
@@ -80,6 +81,7 @@ utils.getBlockPath = function(block) {
 /**
  * execute for source files path
  * @param {block} block
+ * @param {Boolean} debug - whether execute in unit test environment
  * @returns {Array}
  * @example - typical usage
  * var sample =
@@ -90,7 +92,7 @@ utils.getBlockPath = function(block) {
  * // return ['style/origin.css', 'style/complex.css'];
  * utils.getFilePath(sample);
  */
-utils.getFilePath = function(block) {
+utils.getFilePath = function(block, debug) {
   return block
     .replace(startReg, '')
     .replace(endReg, '')
@@ -99,17 +101,22 @@ utils.getFilePath = function(block) {
       return !spaceReg.test(value);
     })
     .map(function(value) {
-      if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return jsReg.exec(value.replace(/^\s*/, ''))[2];
-      if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return cssReg.exec(value.replace(/^\s*/, ''))[2];
+      if (utils._script.indexOf(utils.getBlockType(block)) !== -1) {
+        return !debug ? jsReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', jsReg.exec(value.replace(/^\s*/, ''))[2]);
+      }
+      if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) {
+        return !debug ? cssReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', cssReg.exec(value.replace(/^\s*/, ''))[2]);
+      }
     });
 };
 
 /**
  * execute for source files path
  * @param {Array} blocks - Array consist of block
+ * @param {Boolean} debug - whether execute in unit test environment
  * @returns {SourceArray}
  */
-utils.getFileSource = function(blocks) {
+utils.getFileSource = function(blocks, debug) {
   return blocks
     .filter(function(block) {
       return startMirrorReg.test(block);
@@ -118,7 +125,7 @@ utils.getFileSource = function(blocks) {
       return {
         type: utils.getBlockType(block),
         destiny: utils.getBlockPath(block),
-        files: utils.getFilePath(block)
+        files: utils.getFilePath(block, debug)
       }
     });
 };
@@ -133,10 +140,9 @@ utils.resolveFileSource = function(sources, options) {
   if (!sources || !options) return false;
 
   for (var i = 0; i < sources.length; i++) {
-    var files = sources[i].files;
     var destiny = path.join('./', sources[i].destiny);
+    var files = sources[i].files;
     var parser = options[sources[i].type];
-
     if (files.length === 0 || !destiny) return false;
     if (!parser || parser.length === 0)  {
       utils.pathTraverse(files, [utils.concat(destiny)], options.debug).pipe(vfs.dest(path.join('./', options.directory)));
@@ -151,15 +157,10 @@ utils.resolveFileSource = function(sources, options) {
  * resolve source files through pipeline and return final transform stream
  * @param {Array} originPath - array consist of source file path
  * @param {Array} flow - array consist of transform stream, like [less(),cssmin()], or [coffee(), uglify()]
- * @param {Boolean} debug - whether execute in unit test environment
  * @returns {Object} - transform stream
  */
-utils.pathTraverse = function(originPath, flow, debug) {
-  var targetPath = originPath.map(function(value) {
-    if (!debug) return path.join('./', value);
-    return path.join('./', '/test/fixture',  value);
-  });
-  var stream = vfs.src(targetPath);
+utils.pathTraverse = function(originPath, flow) {
+  var stream = vfs.src(originPath);
   for (var i = 0; i < flow.length; i++) {
     stream = stream.pipe(flow[i]);
   }
@@ -175,16 +176,46 @@ utils.pathTraverse = function(originPath, flow, debug) {
 utils.resolveSourceToDestiny = function(blocks, options) {
   var result = blocks.map(function(block) {
     if (!startMirrorReg.test(block)) return block;
-    if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix) + '"></script>';
-    if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix) + '"/>';
+    if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
+    if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
     if (utils.getBlockType(block) === 'remove') return null;
   });
 
   return result.join('\n');
 };
 
-utils.resolvePostfix = function(postfix) {
-  if (postfix !== 'md5' && typeof postfix === 'string') return !postfix ? '' : '?' + postfix;
+utils.resolvePostfix = function(postfix, block, debug) {
+  if (typeof postfix === 'string' && postfix !== 'md5') return !postfix ? '' : '?' + postfix;
+
+  var content =[];
+  var sources = utils.getFilePath(block, debug)
+      .map(function(value) {
+        return path.join(process.cwd(), value);
+      });
+
+  for (var i = 0; i < sources.length; i++) {
+    try {
+      content.push(fs.readFileSync(sources[i]));
+    } catch (err) {
+      gutil.log(gutil.colors.red('The file ' + sources[i] + ' not exist, maybe cause postfix deviation'));
+    }
+  }
+
+  if (postfix === 'md5') {
+    var hash = crypto.createHash('md5');
+    for (var j = 0; j < content.length; j++) {
+      hash.update(content[j]);
+    }
+    return '?' + hash.digest('hex');
+  }
+
+  if (typeof postfix === 'function') {
+    var buffer = new Buffer(0);
+    for (var k = 0; k < content.length; k++) {
+      buffer = Buffer.concat([buffer, content[k]]);
+    }
+    return '?' + postfix.call(null, buffer);
+  }
 };
 
 /**

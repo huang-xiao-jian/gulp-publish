@@ -38,7 +38,7 @@ function publish(opts) {
 
     // resolve the files linked by tag script and link
     if (options.enableResolve) {
-      var fileSource = utils.getFileSource(blocks);
+      var fileSource = utils.getFileSource(blocks, options.debug);
       utils.resolveFileSource(fileSource, options);
     }
 
