@@ -21,6 +21,7 @@ function publish(opts) {
   // stream options
   var defaults = {
     enableResolve: false,
+    postfix: '',
     directory: './build',
     debug: false
   };
@@ -32,7 +33,7 @@ function publish(opts) {
 
     // resolve the HTML files
     var blocks = utils.getSplitBlock(file.contents.toString());
-    var result = utils.resolveSourceToDestiny(blocks);
+    var result = utils.resolveSourceToDestiny(blocks, options);
     file.contents = new Buffer(result);
 
     // resolve the files linked by tag script and link

@@ -28,8 +28,9 @@
 /**
  * Module dependencies
  */
-var fs = require('vinyl-fs');
 var path =require('path');
+var fs = require('fs');
+var vfs = require('vinyl-fs');
 var through = require('through-gulp');
 var gutil = require('gulp-util');
 
@@ -138,10 +139,10 @@ utils.resolveFileSource = function(sources, options) {
 
     if (files.length === 0 || !destiny) return false;
     if (!parser || parser.length === 0)  {
-      utils.pathTraverse(files, [utils.concat(destiny)], options.debug).pipe(fs.dest(path.join('./', options.directory)));
+      utils.pathTraverse(files, [utils.concat(destiny)], options.debug).pipe(vfs.dest(path.join('./', options.directory)));
     }
     if (parser && parser.length !== 0) {
-      utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(fs.dest(path.join('./', options.directory)));
+      utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
     }
   }
 };
@@ -158,7 +159,7 @@ utils.pathTraverse = function(originPath, flow, debug) {
     if (!debug) return path.join('./', value);
     return path.join('./', '/test/fixture',  value);
   });
-  var stream = fs.src(targetPath);
+  var stream = vfs.src(targetPath);
   for (var i = 0; i < flow.length; i++) {
     stream = stream.pipe(flow[i]);
   }
@@ -168,17 +169,22 @@ utils.pathTraverse = function(originPath, flow, debug) {
 /**
  * resolve the HTML file, replace, remove, or add specific tags
  * @param {Array} blocks - array consist of block
+ * @param {Object} options - plugin argument object
  * @returns {String}
  */
-utils.resolveSourceToDestiny = function(blocks) {
+utils.resolveSourceToDestiny = function(blocks, options) {
   var result = blocks.map(function(block) {
     if (!startMirrorReg.test(block)) return block;
-    if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + '"></script>';
-    if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + '"/>';
+    if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix) + '"></script>';
+    if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix) + '"/>';
     if (utils.getBlockType(block) === 'remove') return null;
   });
 
   return result.join('\n');
+};
+
+utils.resolvePostfix = function(postfix) {
+  if (postfix !== 'md5' && typeof postfix === 'string') return !postfix ? '' : '?' + postfix;
 };
 
 /**

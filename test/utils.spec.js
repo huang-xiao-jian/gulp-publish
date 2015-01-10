@@ -159,7 +159,7 @@ describe('utils module', function () {
           '</head><body></body></html>';
 
         var blocks = utils.getSplitBlock(file.contents.toString());
-        var result = utils.resolveSourceToDestiny(blocks);
+        var result = utils.resolveSourceToDestiny(blocks, {postfix: ''});
         (utils._escape(result)).should.equal(utils._escape(expected));
         callback();
       }, function(callback) {
@@ -258,7 +258,7 @@ describe('utils module', function () {
           '</head><body></body></html>';
 
         var blocks = utils.getSplitBlock(file.contents.toString());
-        var result = utils.resolveSourceToDestiny(blocks);
+        var result = utils.resolveSourceToDestiny(blocks, {postfix: ''});
         (utils._escape(result)).should.equal(utils._escape(expected));
         callback();
       }, function(callback) {
@@ -277,7 +277,7 @@ describe('utils module', function () {
           '</head><body></body></html>';
 
         var blocks = utils.getSplitBlock(file.contents.toString());
-        var result = utils.resolveSourceToDestiny(blocks);
+        var result = utils.resolveSourceToDestiny(blocks, {postfix: ''});
         (utils._escape(result)).should.equal(utils._escape(expected));
         callback();
       }, function(callback) {
