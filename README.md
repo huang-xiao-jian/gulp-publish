@@ -43,7 +43,7 @@ Any link script markup
 
 - **type**: declare the way to resolve internal markups and related files, e.g `js`, `css`, `less`, `coffee`,
 `stylus`, `sass`. (Linked files should match type)
-- **path**: the file path to output.
+- **path**: the file output path relative to process.cwd().
 
 **Remember not miss the block split flag**
 Between normal HTML and block, block and block, block and normal HTML, add split flag
