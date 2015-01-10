@@ -1,9 +1,9 @@
 {
   "name": "gulp-publish",
-  "version": "0.2.1",
+  "version": "0.2.5",
   "description": "Replaces references to non-optimized scripts or stylesheets into a set of HTML files.",
   "main": "index.js",
-  "author": "bornkiller <hjj491229492@hotmail.com>",
+  "author": "bornkiller <hj491229492@gmail.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/bornkiller/gulp-publish.git"
