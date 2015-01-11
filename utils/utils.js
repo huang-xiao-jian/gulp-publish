@@ -184,6 +184,13 @@ utils.resolveSourceToDestiny = function(blocks, options) {
   return result.join('\n');
 };
 
+/**
+ * provide for calculate the postfix, e.g 'v0.2.0', 'md5' or just function with concat buffer as first argument
+ * @param {String|Function} postfix - the postfix for link href or script src, simple string, 'md5' or just function
+ * @param {block} block
+ * @param {Boolean} debug - whether debug environment
+ * @returns {string} - final postfix
+ */
 utils.resolvePostfix = function(postfix, block, debug) {
   if (typeof postfix === 'string' && postfix !== 'md5') return !postfix ? '' : '?' + postfix;
 
@@ -214,8 +221,10 @@ utils.resolvePostfix = function(postfix, block, debug) {
     for (var k = 0; k < content.length; k++) {
       buffer = Buffer.concat([buffer, content[k]]);
     }
-    return '?' + postfix.call(null, buffer);
+    return '?' + postfix.call(null, buffer).toString().replace(/\s*/g, '');
   }
+
+  return '';
 };
 
 /**
