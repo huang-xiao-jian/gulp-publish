@@ -118,6 +118,7 @@ Complete options act like below:
 ```javascript
 {
   enableResolve: true,
+  postfix: '',
   directory: './build',
   css: [cssmin({})],
   js: [uglify({}],
@@ -129,6 +130,14 @@ Complete options act like below:
 Type: Boolean
 
 whether resolve related files that `script`, `link` point. if `false`, will only output resolved HTML file. if `true`, will try resolve linked `javascript`, `css` files.
+
+### postfix
+Type: md5 | String | Function
+
+the postfix after source address.
+if `md5`, will calculate md5 value of all the linked files concat.
+if `String`, will use the string.
+if `Function`, the argument is all the linked files concat buffer, and use returned value as postfix.
 
 ### css
 Type: Array
