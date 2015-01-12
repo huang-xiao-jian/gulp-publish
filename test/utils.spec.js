@@ -202,7 +202,19 @@ describe('utils module', function () {
       done();
     });
 
-    utils.pathTraverse(['test/fixture/script/origin.js'], [generateLess()]).pipe(success);
+    utils.pathTraverse(['test/fixture/script/origin.js'], [{
+      generator: generateLess
+    }]).pipe(success);
+  });
+
+  it('should achieve path traverse when relative style path', function (done) {
+    var success = through(function(file, enc, callback) {
+      file.contents.toString().should.equal("angular.module('cloud', []);");
+      callback(null, file);
+      done();
+    });
+
+    utils.pathTraverse(['test/fixture/script/origin.js']).pipe(success);
   });
 
   it('should resolve source into destiny', function (done) {
@@ -245,8 +257,12 @@ describe('utils module', function () {
     }
 
     var options = {
-      js: [generateLess()],
-      css: [generateLess()],
+      js: [{
+        generator: generateLess
+      }],
+      css: [{
+        generator: generateLess
+      }],
       directory: './build',
       debug: true
     };

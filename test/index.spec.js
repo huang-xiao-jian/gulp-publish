@@ -48,8 +48,12 @@ describe('plugin module', function () {
     gulp.src('./test/fixture/source.html')
       .pipe(publish({
         enableResolve: true,
-        css: [cssmin({})],
-        js: [uglify()],
+        css: [{
+          generator: cssmin
+        }],
+        js: [{
+          generator: uglify
+        }],
         debug: true
       }))
       .pipe(gulp.dest('./build'));
@@ -69,7 +73,9 @@ describe('plugin module', function () {
     gulp.src('./test/fixture/less.html')
       .pipe(publish({
         enableResolve: true,
-        less: [less()],
+        less: [{
+          generator: less
+        }],
         debug: true
       }))
       .pipe(gulp.dest('./build'));
@@ -88,7 +94,9 @@ describe('plugin module', function () {
     gulp.src('./test/fixture/coffee.html')
       .pipe(publish({
         enableResolve: true,
-        coffee: [coffee()],
+        coffee: [{
+          generator: coffee
+        }],
         debug: true
       }))
       .pipe(gulp.dest('./build'));

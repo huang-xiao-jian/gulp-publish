@@ -160,10 +160,10 @@ utils.resolveFileSource = function(sources, options) {
     var parser = options[sources[i].type];
     if (files.length === 0 || !destiny) return false;
     if (!parser || parser.length === 0)  {
-      utils.pathTraverse(files, [utils.concat(destiny)], options.debug).pipe(vfs.dest(path.join('./', options.directory)));
+      utils.pathTraverse(files).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
     }
     if (parser && parser.length !== 0) {
-      utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
+      utils.pathTraverse(files, parser).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
     }
   }
 };
@@ -175,10 +175,19 @@ utils.resolveFileSource = function(sources, options) {
  * @returns {Object} - transform stream
  */
 utils.pathTraverse = function(originPath, flow) {
+  var option;
   var stream = vfs.src(originPath);
-  for (var i = 0; i < flow.length; i++) {
-    stream = stream.pipe(flow[i]);
+  if (Array.isArray(flow)) {
+    flow = flow.map(function(value) {
+      option = value.config || {};
+      return value.generator(option);
+    });
+
+    for (var i = 0; i < flow.length; i++) {
+      stream = stream.pipe(flow[i]);
+    }
   }
+
   return stream;
 };
 
