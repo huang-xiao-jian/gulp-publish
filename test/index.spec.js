@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var should = require('should');
 var path = require('path');
 var fs = require('fs');
+var through = require('through-gulp');
 
 var publish = require('../index.js');
 var utils = require('../utils/utils.js');
@@ -29,6 +30,15 @@ describe('plugin module', function () {
       (fileInspector(path.join(process.cwd(), './build/script/build.js'))).should.throw();
       done();
     }, 100);
+  });
+
+  it('should emit error event when pass stream', function (done) {
+    gulp.src('test/fixture/source.html', { buffer: false })
+      .pipe(publish())
+      .on('error', function(err) {
+        err.message.should.equal('Streams are not supported!');
+        done();
+      });
   });
 
   it('should resolve stylesheet, javascript files when enabled', function (done) {

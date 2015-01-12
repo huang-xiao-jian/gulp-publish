@@ -29,7 +29,10 @@ function publish(opts) {
 
   return through(function(file, enc, callback) {
     if (file.isNull()) return callback(null, file);
-    if (file.isStream()) return callback(new gutil.PluginError(PLUGIN, 'Streams are not supported!'));
+    if (file.isStream()) {
+      this.emit('error', new gutil.PluginError(PLUGIN, 'Streams are not supported!'));
+      return callback();
+    }
 
     // resolve the HTML files
     var blocks = utils.getSplitBlock(file.contents.toString());

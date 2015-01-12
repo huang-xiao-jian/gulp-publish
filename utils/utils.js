@@ -141,7 +141,9 @@ utils.resolveFileSource = function(sources, options) {
 
   for (var i = 0; i < sources.length; i++) {
     var destiny = path.join('./', sources[i].destiny);
-    var files = sources[i].files;
+    var files = sources[i].files.map(function(value) {
+      return path.join(process.cwd(), value);
+    });
     var parser = options[sources[i].type];
     if (files.length === 0 || !destiny) return false;
     if (!parser || parser.length === 0)  {
