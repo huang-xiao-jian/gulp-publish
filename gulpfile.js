@@ -25,10 +25,22 @@ gulp.task('standard', function() {
       enableResolve: true,
       postfix: 'v0.2.5',
       debug: true,
-      js: [uglify()],
-      coffee: [coffee()],
-      css: [cssmin()],
-      less: [less()]
+      js: [{
+        generator: uglify,
+        config: {} // options for uglify
+      }],
+      coffee: [{
+        generator: coffee,
+        config: {} // options for coffee
+      }],
+      css: [{
+        generator: cssmin,
+        config: {} // options for cssmin
+      }],
+      less: [{
+        generator: less,
+        config: {} // options for less
+      }]
     }))
     .pipe(htmlmin({
       removeComment: true,
