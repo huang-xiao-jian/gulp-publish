@@ -1,7 +1,7 @@
 /**
  * A module to replace link, script tags, and provide API for resolve linked files.
  * @module gulp-publish
- * @version v0.3.5
+ * @version v0.4.0
  */
 
 /**
