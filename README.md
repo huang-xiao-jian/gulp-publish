@@ -42,7 +42,8 @@ Any link script markup
 ```
 
 - **type**: declare the way to resolve internal markups and related files, e.g `js`, `css`, `less`, `coffee`,
-`stylus`, `sass`. (Linked files should match type)
+`stylus`, `sass`. Linked files should match type, if mismatch, will skip the specific tag. Such as, you place `css`
+type, but use `<script></script>` tags.
 - **path**: the file output path relative to process.cwd().
 
 **Remember not miss the block split flag**
@@ -120,8 +121,18 @@ Complete options act like below:
   enableResolve: true,
   postfix: '',
   directory: './build',
-  css: [cssmin({})],
-  js: [uglify({}],
+  css: [
+    {
+      generator: cssmin,
+      config: {} // options for cssmin
+    }
+  ]
+  js: [
+    {
+      generator: uglify,
+      config: {} // options for uglify
+    }
+  ],
   debug: true
 }
 ```
@@ -135,29 +146,40 @@ whether resolve related files that `script`, `link` point. if `false`, will only
 Type: md5 | String | Function
 
 the postfix after source address.
-if `md5`, will calculate md5 value of all the linked files concat.
+if `md5`, will calculate md5 value of the buffer concat all the linked files.
 if `String`, will use the string.
-if `Function`, the argument is all the linked files concat buffer, and use returned value as postfix.
+if `Function`, the argument is the buffer concat all the linked files, and use returned value as postfix.
+For example, set postfix `v0.2.5`, will generate tags below:
+```html
+<link rel="stylesheet" href="/style/build.css?v0.2.5">
+<script src="/script/build.js?v0.2.5"></script>
+```
 
 ### css
 Type: Array
 
-Value consists of stream object that  `gulp-plugin` generate. Declare how to resolve css files. if omitted or null, will only concat related files.
+Value consists of object with property `generator`, `config`.  Generally speaking, any `gulp-plugin` exports `generator` here, and config property pass to the `generator`. Declare how to resolve css files. if omitted or null, will only concat related files.
 
-### js
-Type: Array
+For example:
+```javascript
+[
+  {
+    generator: less,
+    config: {}
+  }
+]
+```
 
-Value consists of stream object that  `gulp-plugin` generate. Declare how to resolve javascript files. if omitted or null, will only concat related files.
-
-### less, stylus, sass, coffee
-Almost the same thing as `css`, `js` above, to resolve correspond files. `less`, `coffee` pass the test, `stylus`, `sass` will dance as well.
+### js, coffee, less, stylus, sass
+Almost the same thing as `css` above, to resolve correspond files. `js`, `less`, `coffee` pass the test, `stylus`, `sass` will dance as well.
 
 ### debug
 Type: boolean
 
 whether used in debug environment, just for unit test.
 
-For some scene, you did special structure, such as build simple server to render `less`, `coffee` files, and import
+## Additional Description
++ For some scene, you did special structure, such as build simple server to render `less`, `coffee` files, and import
 like below:
 
 ```html
@@ -167,6 +189,8 @@ like below:
 
 Making an assumption, put `gulp-less`, `gulp-coffee` into `css` or `js` config array will achieve the same thing,
 but I think provide `less`, `coffee` type is necessary.
+
++ The type option array consist of object to get the final stream, rather than normal stream. That's because there would be several source stream pass the `pipeline flow`, if stream, will cause content mismatch, and after any source stream emit `end`, the stream would never write again.
 
 ## Contact
 **hjj491229492@hotmail.com**
