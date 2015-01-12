@@ -102,11 +102,24 @@ utils.getFilePath = function(block, debug) {
     })
     .map(function(value) {
       if (utils._script.indexOf(utils.getBlockType(block)) !== -1) {
-        return !debug ? jsReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', jsReg.exec(value.replace(/^\s*/, ''))[2]);
+        try {
+          return !debug ? jsReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', jsReg.exec(value.replace(/^\s*/, ''))[2]);
+        } catch (err) {
+          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
+          return null;
+        }
       }
       if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) {
-        return !debug ? cssReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', cssReg.exec(value.replace(/^\s*/, ''))[2]);
+        try {
+          return !debug ? cssReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', cssReg.exec(value.replace(/^\s*/, ''))[2]);
+        } catch (err) {
+          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
+          return null;
+        }
       }
+    })
+    .filter(function(value) {
+      return value !== null;
     });
 };
 

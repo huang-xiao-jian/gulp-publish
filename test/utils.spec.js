@@ -70,6 +70,50 @@ describe('utils module', function () {
       }))
   });
 
+  it('should resolve source file path from block', function () {
+    var block =  '<!-- build:js /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<script src="/script/complex.js"></script>\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([
+      '/script/origin.js',
+      '/script/complex.js'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/script/origin.js',
+      'test/fixture/script/complex.js'
+    ])
+  });
+
+  it('should resolve source file path from block', function () {
+    var block =  '<!-- build:css /style/build.css -->\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<link rel="stylesheet" href="/style/complex.css">\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([
+      '/style/origin.css',
+      '/style/complex.css'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/style/origin.css',
+      'test/fixture/style/complex.css'
+    ])
+  });
+
+  it('should resolve source file path from block', function () {
+    var block =  '<!-- build:js /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([
+      '/script/origin.js'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/script/origin.js'
+    ])
+  });
+
+  it('should resolve source file path from block', function () {
+    var block =  '<!-- build:css /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([
+      '/style/origin.css'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/style/origin.css'
+    ])
+  });
+
   it('should get file path from blocks', function (done) {
     gulp.src('./test/fixture/source.html')
       .pipe(through(function(file, enc, callback) {
