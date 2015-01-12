@@ -29,6 +29,8 @@ function publish(opts) {
 
   return through(function(file, enc, callback) {
     if (file.isNull()) return callback(null, file);
+
+    // emit error event when pass stream
     if (file.isStream()) {
       this.emit('error', new gutil.PluginError(PLUGIN, 'Streams are not supported!'));
       return callback();
