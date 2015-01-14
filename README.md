@@ -26,9 +26,9 @@ Then, add it to your `gulpfile.js`:
 var publish = require('gulp-publish');
 
 gulp.task('publish', function () {
-  return gulp.src('*.html')
-      .pipe(publish()))
-      .pipe(gulp.dest('build/'));
+  gulp.src('*.html')
+    .pipe(publish()))
+    .pipe(gulp.dest('build/'));
 });
 ```
 
@@ -42,15 +42,13 @@ Any link script markup
 ```
 
 - **type**: declare the way to resolve internal markups and related files, e.g `js`, `css`, `less`, `coffee`,
-`stylus`, `sass`. Linked files should match type, if mismatch, will skip the specific tag. Such as, you place `css`
-type, but use `<script></script>` tags.
+`stylus`, `sass`, `remove`, `replace`. Linked files should match type, if mismatch, will skip the specific tag. Such as, you place `css` type, but use `<script></script>` tags.
 - **path**: the file output path relative to process.cwd().
 
-**Remember not miss the block split flag**
-Between normal HTML and block, block and block, block and normal HTML, add split flag
+**Remember not miss the block split flag between normal HTML and block, block and block, block and normal HTML, add split flag**
 `<!-- split -->`.
 
-Particularly, when `type` equal 'remove', the block will be destroyed.
+Particularly, when `type` equal `remove`, the block will be destroyed.
 
 ```html
 <!-- build:remove /build/script/build.js -->
@@ -58,7 +56,16 @@ Particularly, when `type` equal 'remove', the block will be destroyed.
 <!-- endbuild -->
 ```
 
-Also, support add tags when build, below will insert `<script src="/build/script/build.js">` , `<link rel="stylesheet" href="/style/build.css"/>` into html.
+when `type` equal `replace`, will only replace tags, but will never resolve related files. This is necessary when you define almost the same block in several HTML file, but resolve the related files once complete the mission. 
+As below, will generate `<script src="/script/build.js"></script>`, and will never try to generate the `/script/build.js` file.
+
+```html
+<!-- build:replace /script/build.js -->
+<script src="/script/origin.js"></script>
+<!-- endbuild -->
+```
+
+Also, when block does't have any HTML tags, will just add corespond tags, below will insert `<script src="/build/script/build.js"></script>` , `<link rel="stylesheet" href="/style/build.css"/>` into html.
 
 ```html
 <!-- build:js /build/script/build.js -->
