@@ -114,6 +114,12 @@ describe('utils module', function () {
     ])
   });
 
+  it('should resolve source file path from block', function () {
+    var block =  '<!-- build:remove /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([]);
+    utils.getFilePath(block, true).should.eql([])
+  });
+
   it('should get file path from blocks', function (done) {
     gulp.src('./test/fixture/source.html')
       .pipe(through(function(file, enc, callback) {

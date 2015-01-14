@@ -117,6 +117,7 @@ utils.getFilePath = function(block, debug) {
           return null;
         }
       }
+      if (utils.getBlockType(block) === 'remove') return null;
     })
     .filter(function(value) {
       return value !== null;
