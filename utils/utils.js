@@ -158,13 +158,14 @@ utils.resolveFileSource = function(sources, options) {
     var files = sources[i].files.map(function(value) {
       return path.join(process.cwd(), value);
     });
-    var parser = options[sources[i].type];
-    if (files.length === 0 || !destiny) return false;
-    if (!parser || parser.length === 0)  {
-      utils.pathTraverse(files).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
-    }
-    if (parser && parser.length !== 0) {
-      utils.pathTraverse(files, parser).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
+    if (files.length !== 0 || destiny) {
+      var parser = options[sources[i].type];
+      if (!parser || parser.length === 0)  {
+        utils.pathTraverse(files).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
+      }
+      if (parser && parser.length !== 0) {
+        utils.pathTraverse(files, parser).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
+      }
     }
   }
 };

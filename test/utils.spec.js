@@ -242,6 +242,17 @@ describe('utils module', function () {
       }))
   });
 
+  it('should not resolve source files when miss sources or options', function () {
+    var sources = [{
+      type: 'js',
+      destiny: 'script/build.js',
+      files: ['test/fixture/script/origin.js', 'test/fixture/script/complex.js']
+    }];
+
+    (utils.resolveFileSource()).should.be.false;
+    (utils.resolveFileSource(sources)).should.be.false;
+  });
+
   it('should resolve source files into destiny', function (done) {
     var sources = [
       {
