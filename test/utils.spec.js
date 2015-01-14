@@ -121,9 +121,47 @@ describe('utils module', function () {
   });
 
   it('should resolve source file path from block', function () {
+    var block =  '<!-- build:replace /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<script src="/script/complex.js"></script>\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([
+      '/script/origin.js',
+      '/script/complex.js'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/script/origin.js',
+      'test/fixture/script/complex.js'
+    ])
+  });
+
+  it('should resolve source file path from block', function () {
+    var block =  '<!-- build:replace /style/build.css -->\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<link rel="stylesheet" href="/style/complex.css">\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([
+      '/style/origin.css',
+      '/style/complex.css'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/style/origin.css',
+      'test/fixture/style/complex.css'
+    ])
+  });
+
+  it('should resolve source file path from block', function () {
     var block =  '<!-- build:replace /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([]);
-    utils.getFilePath(block, true).should.eql([])
+    utils.getFilePath(block).should.eql([
+      '/script/origin.js'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/script/origin.js'
+    ])
+  });
+
+  it('should resolve source file path from block', function () {
+    var block =  '<!-- build:replace /script/build.css -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
+    utils.getFilePath(block).should.eql([
+      '/style/origin.css'
+    ]);
+    utils.getFilePath(block, true).should.eql([
+      'test/fixture/style/origin.css'
+    ])
   });
 
   it('should get file path from blocks', function (done) {
@@ -227,6 +265,36 @@ describe('utils module', function () {
     });
 
     utils.pathTraverse(['test/fixture/script/origin.js']).pipe(success);
+  });
+
+  it('should resolve block into final tags when normal HTML tags only', function () {
+    var normal = '<!DOCTYPE html><html><head lang="en"><meta charset="UTF-8"><title>gulp release</title></head><body></body></html>';
+    utils.generateTags(normal).should.equal(normal);
+  });
+
+  it('should resolve block into final tags when css reference', function () {
+    var stylesheet = '<!-- build:css /style/build.css --><!-- endbuild -->';
+    utils.generateTags(stylesheet, {}).should.equal('<link rel="stylesheet" href="/style/build.css"/>');
+  });
+
+  it('should resolve block into final tags when js reference', function () {
+    var scripts = '<!-- build:js /script/build.js --><!-- endbuild -->';
+    utils.generateTags(scripts, {}).should.equal('<script src="/script/build.js"></script>');
+  });
+
+  it('should resolve block into final tags when remove reference', function () {
+    var remove = '<!-- build:remove /script/build.js --><script src="/script/origin.js"></script><!-- endbuild -->';
+    (utils.generateTags(remove, {}) === null).should.be.true;
+  });
+
+  it('should resolve block into final tags when replace reference', function () {
+    var scripts = '<!-- build:replace /script/build.js -->\n<script src="/script/origin.js"></script>\n<script src="/script/complex.js"></script>\n<!-- endbuild -->';
+    utils.generateTags(scripts, { postfix: 'md5', debug: true}).should.equal('<script src="/script/build.js?761b2346e32d7ce46a1a4a76ccda0b2c"></script>');
+  });
+
+  it('should resolve block into final tags when replace reference', function () {
+    var stylesheet = '<!-- build:replace /style/build.css -->\n<link rel="stylesheet" href="/style/origin.css">\n<link rel="stylesheet" href="/style/complex.css">\n<!-- endbuild -->';
+    utils.generateTags(stylesheet, { postfix: 'md5', debug: true }).should.equal('<link rel="stylesheet" href="/style/build.css?26ea1a2fe8faf4cdcf774344a6b70fc5"/>');
   });
 
   it('should resolve source into destiny', function (done) {

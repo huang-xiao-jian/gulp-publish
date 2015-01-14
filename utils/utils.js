@@ -117,7 +117,23 @@ utils.getFilePath = function(block, debug) {
           return null;
         }
       }
-      if (utils.getBlockType(block) === 'remove' || utils.getBlockType(block) === 'replace') return null;
+      if (utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.js') {
+        try {
+          return !debug ? jsReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', jsReg.exec(value.replace(/^\s*/, ''))[2]);
+        } catch (err) {
+          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
+          return null;
+        }
+      }
+      if (utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.css') {
+        try {
+          return !debug ? cssReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', cssReg.exec(value.replace(/^\s*/, ''))[2]);
+        } catch (err) {
+          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
+          return null;
+        }
+      }
+      if (utils.getBlockType(block) === 'remove') return null;
     })
     .filter(function(value) {
       return value !== null;
@@ -154,11 +170,12 @@ utils.resolveFileSource = function(sources, options) {
   if (!sources || !options) return false;
 
   for (var i = 0; i < sources.length; i++) {
+    var type = sources[i].type;
     var destiny = path.join('./', sources[i].destiny);
     var files = sources[i].files.map(function(value) {
       return path.join(process.cwd(), value);
     });
-    if (files.length !== 0 || destiny) {
+    if (files.length !== 0 && type !== 'replace' && destiny) {
       var parser = options[sources[i].type];
       if (!parser || parser.length === 0)  {
         utils.pathTraverse(files).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
@@ -201,13 +218,27 @@ utils.pathTraverse = function(originPath, flow) {
  */
 utils.resolveSourceToDestiny = function(blocks, options) {
   var result = blocks.map(function(block) {
-    if (!startMirrorReg.test(block)) return block;
-    if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
-    if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
-    if (utils.getBlockType(block) === 'remove') return null;
+    return utils.generateTags(block, options);
   });
 
   return result.join('\n');
+};
+
+/**
+ * resolve the HTML block, replace, remove, or add specific tags
+ * @param {block} block - typical block
+ * @param {Object} options - plugin argument object
+ * @returns {String}
+ */
+utils.generateTags = function(block, options) {
+  if (!startMirrorReg.test(block)) return block;
+  if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
+  if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
+  if (utils.getBlockType(block) === 'replace') {
+    if (path.extname(utils.getBlockPath(block)) === '.js') return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
+    if (path.extname(utils.getBlockPath(block)) === '.css') return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
+  }
+  if (utils.getBlockType(block) === 'remove') return null;
 };
 
 /**
