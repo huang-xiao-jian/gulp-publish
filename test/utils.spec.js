@@ -448,4 +448,12 @@ describe('utils module', function () {
         done();
       }))
   });
+
+  it('should transform stream into promise', function () {
+    var stream = fs.createReadStream(path.join(__dirname, 'fixture/script/origin.js'));
+    var destiny = utils.streamToPromise(stream);
+    return destiny.then(function(value) {
+      (value.toString()).should.equal("angular.module('cloud', []);");
+    });
+  });
 });

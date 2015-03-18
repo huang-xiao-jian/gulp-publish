@@ -198,6 +198,7 @@ Making an assumption, put `gulp-less`, `gulp-coffee` into `css` or `js` config a
 but I think provide `less`, `coffee` type is necessary.
 
 + The type option array consist of object to get the final stream, rather than normal stream. That's because there would be several source stream pass the `pipeline flow`, if stream, will cause content mismatch, and after any source stream emit `end`, the stream would never write again.
++ Unit test will check some file exists, so clear build directory before.
 
 ## Contact
 **hjj491229492@hotmail.com**

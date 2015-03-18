@@ -30,6 +30,7 @@
  */
 var path =require('path');
 var fs = require('fs');
+var util = require('util');
 var crypto = require('crypto');
 var vfs = require('vinyl-fs');
 var through = require('through-gulp');
@@ -335,6 +336,27 @@ utils.shallowMerge = function(source, destiny) {
  */
 utils._escape = function(string) {
   return string.replace(/[\n\s]*/gi, '');
+};
+
+/**
+ * @description - transform stream into promise, the value concat all the content
+ * @param stream
+ * @returns {Object} - return promise actually
+ */
+utils.streamToPromise = function(stream) {
+  if (util.isUndefined(stream.pipe)) return Promise.reject('argument is not stream');
+
+  return new Promise(function(resolve, reject) {
+    var destiny = new Buffer('');
+
+    stream.pipe(through(function(file, encoding, callback) {
+      destiny = Buffer.concat([destiny, file.contents || file]);
+      callback();
+    }, function(callback) {
+      resolve(destiny);
+      callback();
+    }));
+  });
 };
 
 // exports the object

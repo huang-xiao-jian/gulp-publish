@@ -2,34 +2,26 @@ var gulp = require('gulp');
 var should = require('should');
 var path = require('path');
 var fs = require('fs');
-var through = require('through-gulp');
-
 var publish = require('../index.js');
 var utils = require('../utils/utils.js');
-
 var cssmin = require('gulp-cssmin');
 var uglify = require('gulp-uglify');
 var less = require('gulp-less');
 var coffee = require('gulp-coffee');
 
-var fileInspector = function(path) {
-  return function() {
-    return fs.readFileSync(path);
-  }
-};
-
 describe('plugin module', function () {
-  it('should not resolve any files when disabled', function (done) {
-    gulp.src('./test/fixture/source.html')
+  it('should not resolve any files when disabled', function () {
+    var stream = gulp.src('./test/fixture/source.html')
       .pipe(publish({
         enableResolve: false
       }))
       .pipe(gulp.dest('./build'));
 
-    setTimeout(function() {
-      (fileInspector(path.join(process.cwd(), './build/script/build.js'))).should.throw();
-      done();
-    }, 100);
+    return utils.streamToPromise(stream).then(function() {
+      (function(){
+        fs.accessSync(path.join(process.cwd(), './build/script/build.js'));
+      }).should.throw();
+    });
   });
 
   it('should emit error event when pass stream', function (done) {
