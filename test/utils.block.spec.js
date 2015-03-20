@@ -98,3 +98,14 @@ describe('utils block file path collection', function () {
     utils.getBlockFilePath(AnyBlock).should.eql([]);
   });
 });
+
+describe('utils block file description structure', function () {
+  it('should resolve block structure', function () {
+    let scriptComment = '<!-- build:js /style/build.js -->\n<script src="/script/origin.js"></script>\n<!-- endbuild -->';
+    (utils.getBlockStructure(scriptComment)).should.containEql({
+      type: 'js',
+      destiny: '/style/build.js',
+      files: ['/script/origin.js']
+    });
+  });
+});

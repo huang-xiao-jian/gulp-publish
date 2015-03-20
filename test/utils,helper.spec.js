@@ -9,8 +9,6 @@ var crypto = require('crypto');
 var utils = require('../utils/utils.js');
 
 describe('utils module', function () {
-
-
   it('should not resolve source files when miss sources or options', function () {
     var sources = [{
       type: 'js',
@@ -97,59 +95,6 @@ describe('utils module', function () {
   });
 });
 
-describe('utils block information collection', function () {
-  var StyleComment = '<!-- build:css /style/build.css -->\n<link type="text/css" href="/style/origin.css">\n<!-- endbuild -->';
-  var StyleMirrorComment = '<!-- build:css ./style/build.css -->\n<link type="text/css" href="/style/origin.css">\n<!-- endbuild -->';
-  var ScriptComment = '<!-- build:js /style/build.js -->\n<script src="/script/origin.js></script>\n<!-- endbuild -->';
-  var LessComment = '<!-- build:less /style/build.css -->\n<link type="text/css" href="/style/origin.less">\n<!-- endbuild -->';
-
-  it('should get js type', function () {
-    utils.getBlockType(StyleComment).should.equal('css');
-  });
-
-  it('should get css type', function () {
-    utils.getBlockType(ScriptComment).should.equal('js');
-  });
-
-  it('should get other type', function () {
-    utils.getBlockType(LessComment).should.equal('less');
-  });
-
-  it('should get absolute destiny path', function () {
-    utils.getBlockPath(StyleComment).should.equal('/style/build.css');
-  });
-
-  it('should get relative destiny path', function () {
-    utils.getBlockPath(StyleMirrorComment).should.equal('./style/build.css');
-  });
-});
-
-describe('utils line path collection', function () {
-  var scriptComment = '<script src="/script/origin.js"></script>';
-  var linkScript = '<link rel="stylesheet" href="/style/origin.css">';
-  var scriptPathSampleA = path.join('script/origin.js');
-  var scriptPathSampleB = path.join('test/fixture/script/origin.js');
-  var linkPathSampleA = path.join('style/origin.css');
-  var linkPathSampleB = path.join('test/fixture/style/origin.css');
-
-  it('should get script path', function () {
-    utils.getScriptPath(scriptComment).should.equal(scriptPathSampleA);
-    utils.getScriptPath(scriptComment, true).should.equal(scriptPathSampleB)
-  });
-
-  it('should get link path', function () {
-    utils.getLinkPath(linkScript).should.equal(linkPathSampleA);
-    utils.getLinkPath(linkScript, true).should.equal(linkPathSampleB);
-  });
-
-  it('should get uncertain path', function () {
-    utils.getReplacePath(scriptComment, '.js').should.equal(scriptPathSampleA);
-    utils.getReplacePath(scriptComment, '.js', true).should.equal(scriptPathSampleB);
-    utils.getReplacePath(linkScript, '.css').should.equal(linkPathSampleA);
-    utils.getReplacePath(linkScript, '.css', true).should.equal(linkPathSampleB);
-  });
-});
-
 describe('utils block description structure', function () {
   it('should resolve block structure', function () {
     let scriptComment = '<!-- build:js /style/build.js -->\n<script src="/script/origin.js"></script>\n<!-- endbuild -->';
@@ -167,70 +112,6 @@ describe('utils block description structure', function () {
   });
 });
 
-describe('utils block file path collection', function () {
-  var scriptPathSampleA = path.join('script/origin.js');
-  var scriptPathSampleB = path.join('test/fixture/script/origin.js');
-  var scriptPathSampleC = path.join('script/complex.js');
-  var scriptPathSampleD = path.join('test/fixture/script/complex.js');
-  var linkPathSampleA = path.join('style/origin.css');
-  var linkPathSampleB = path.join('test/fixture/style/origin.css');
-  var linkPathSampleC = path.join('style/complex.css');
-  var linkPathSampleD = path.join('test/fixture/style/complex.css');
-
-  it('should resolve source file path from script block', function () {
-    let block =  '<!-- build:js /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<script src="/script/complex.js"></script>\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([scriptPathSampleA, scriptPathSampleC]);
-    utils.getFilePath(block, true).should.eql([scriptPathSampleB, scriptPathSampleD]);
-  });
-
-  it('should resolve source file path from link block', function () {
-    let block =  '<!-- build:css /style/build.css -->\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<link rel="stylesheet" href="/style/complex.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([linkPathSampleA, linkPathSampleC]);
-    utils.getFilePath(block, true).should.eql([linkPathSampleB, linkPathSampleD]);
-  });
-
-  it('should resolve script file path from mixed block', function () {
-    let block =  '<!-- build:js /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([scriptPathSampleA]);
-    utils.getFilePath(block, true).should.eql([scriptPathSampleB]);
-  });
-
-  it('should resolve link file path from mixed block', function () {
-    let block =  '<!-- build:css /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([linkPathSampleA]);
-    utils.getFilePath(block, true).should.eql([linkPathSampleB]);
-  });
-
-  it('should resolve remove file path from mixed block', function () {
-    let block =  '<!-- build:remove /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([]);
-    utils.getFilePath(block, true).should.eql([])
-  });
-
-  it('should resolve replace file path from script block', function () {
-    var block =  '<!-- build:replace /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<script src="/script/complex.js"></script>\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([scriptPathSampleA, scriptPathSampleC]);
-    utils.getFilePath(block, true).should.eql([scriptPathSampleB, scriptPathSampleD]);
-  });
-
-  it('should resolve replace file path from block', function () {
-    let block =  '<!-- build:replace /style/build.css -->\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<link rel="stylesheet" href="/style/complex.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([linkPathSampleA, linkPathSampleC]);
-    utils.getFilePath(block, true).should.eql([linkPathSampleB, linkPathSampleD]);
-  });
-
-  it('should resolve replace file path from mixed block', function () {
-    var block =  '<!-- build:replace /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([scriptPathSampleA]);
-    utils.getFilePath(block, true).should.eql([scriptPathSampleB]);
-  });
-
-  it('should resolve replace file path from mixed block', function () {
-    let block =  '<!-- build:replace /script/build.css -->\n' + '<script src="/script/origin.js"></script>\n' + '<link rel="stylesheet" href="/style/origin.css">\n' + '<!-- endbuild -->\n';
-    utils.getFilePath(block).should.eql([linkPathSampleA]);
-    utils.getFilePath(block, true).should.eql([linkPathSampleB]);
-  });
-});
 
 describe('utils path traverse method', function () {
   var generatePassStream = function() {
@@ -287,7 +168,7 @@ describe('utils path prerender method', function () {
   });
 });
 
-describe.only('utils helper method', function () {
+describe('utils helper method', function () {
   it('should merge object', function () {
     let source = { title: 'story', content: 'never say goodbye' };
     let destiny = { title: 'love' };

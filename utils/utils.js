@@ -140,13 +140,13 @@ utils.getBlockFilePath = function(block) {
     });
 };
 
-utils.getBlockStructure = function(block, debug) {
+utils.getBlockStructure = function(block) {
   if (!startMirrorReg.test(block)) return null;
 
   return {
     type: utils.getBlockType(block),
     destiny: utils.getBlockPath(block),
-    files: utils.getFilePath(block, debug)
+    files: utils.getBlockFilePath(block)
   }
 };
 
