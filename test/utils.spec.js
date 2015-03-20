@@ -9,29 +9,6 @@ var crypto = require('crypto');
 var utils = require('../utils/utils.js');
 
 describe('utils module', function () {
-  var StyleComment = '<!-- build:css /style/build.css --><link type="text/css" href="/style/origin.css"><!-- endbuild -->';
-  var StyleMirrorComment = '<!-- build:css ./style/build.css --><link type="text/css" href="/style/origin.css"><!-- endbuild -->';
-  var ScriptComment = '<!-- build:js /style/build.js --><script src="/script/origin.js></script><!-- endbuild -->';
-  var LessComment = '<!-- build:less /style/build.css --><link type="text/css" href="/style/origin.less"><!-- endbuild -->';
-
-  it('should merge object', function () {
-    var source = {
-      title: 'story',
-      content: 'never say goodbye'
-    };
-
-    var destiny = {
-      title: 'love'
-    };
-
-    (utils.shallowMerge(source, destiny)).should.eql({
-      title: 'story',
-      content: 'never say goodbye'
-    })
-  });
-
-
-
   it('should split html into blocks', function (done) {
     var expected = [
       '<!DOCTYPE html><html><head lang="en"><meta charset="UTF-8"><title>gulp release</title>',
@@ -47,54 +24,6 @@ describe('utils module', function () {
 
         (utils._escape(result[2])).should.equal(utils._escape(expected[2]));
         (utils._escape(result[3])).should.equal(utils._escape(expected[3]));
-        callback();
-      }, function(callback) {
-        callback();
-        done();
-      }))
-  });
-
-  it('should get file path from blocks', function (done) {
-    gulp.src('./test/fixture/source.html')
-      .pipe(through(function(file, enc, callback) {
-        var blocks = utils.getSplitBlock(file.contents.toString());
-        var result = utils.getFileSource(blocks);
-        result[0].should.eql({
-          type: 'css',
-          destiny: '/style/build.css',
-          files: ['/style/origin.css', '/style/complex.css']
-        });
-
-        result[1].should.eql({
-          type: 'js',
-          destiny: '/script/build.js',
-          files: ['/script/origin.js', '/script/complex.js']
-        });
-
-        callback();
-      }, function(callback) {
-        callback();
-        done();
-      }))
-  });
-
-  it('should get file path from empty blocks', function (done) {
-    gulp.src('./test/fixture/special.html')
-      .pipe(through(function(file, enc, callback) {
-        var blocks = utils.getSplitBlock(file.contents.toString());
-        var result = utils.getFileSource(blocks);
-        result[0].should.eql({
-          type: 'css',
-          destiny: '/style/build.css',
-          files: []
-        });
-
-        result[1].should.eql({
-          type: 'js',
-          destiny: '/script/build.js',
-          files: []
-        });
-
         callback();
       }, function(callback) {
         callback();
@@ -263,16 +192,6 @@ describe('utils module', function () {
     }, 100);
   });
 
-  it('should concat separate file', function (done) {
-    gulp.src(['./test/fixture/script/origin.js', './test/fixture/script/complex.js'])
-      .pipe(utils.concat('build.js'))
-      .pipe(through(function(file, enc, callback) {
-        utils._escape(file.contents.toString()).should.equal(utils._escape("angular.module('cloud', []);angular.module('cloud').controller('MainCtrl', function() {});"));
-        callback();
-        done();
-      }))
-  });
-
   it('should resolve source into destiny when add tags', function (done) {
     gulp.src('./test/fixture/special.html')
       .pipe(through(function(file, enc, callback) {
@@ -309,14 +228,6 @@ describe('utils module', function () {
         callback();
         done();
       }))
-  });
-
-  it('should transform stream into promise', function () {
-    var stream = fs.createReadStream(path.join(__dirname, 'fixture/script/origin.js'));
-    var destiny = utils.streamToPromise(stream);
-    return destiny.then(function(value) {
-      (value.toString()).should.equal("angular.module('cloud', []);");
-    });
   });
 });
 
@@ -373,7 +284,24 @@ describe('utils line path collection', function () {
   });
 });
 
-describe.only('utils block file path collection', function () {
+describe('utils block description structure', function () {
+  it('should resolve block structure', function () {
+    let scriptComment = '<!-- build:js /style/build.js -->\n<script src="/script/origin.js"></script>\n<!-- endbuild -->';
+    (utils.getBlockStructure(scriptComment)).should.containEql({
+      type: 'js',
+      destiny: '/style/build.js',
+      files: [path.join('script/origin.js')]
+    });
+
+    (utils.getBlockStructure(scriptComment, true)).should.containEql({
+      type: 'js',
+      destiny: '/style/build.js',
+      files: [path.join('test/fixture/script/origin.js')]
+    })
+  });
+});
+
+describe('utils block file path collection', function () {
   var scriptPathSampleA = path.join('script/origin.js');
   var scriptPathSampleB = path.join('test/fixture/script/origin.js');
   var scriptPathSampleC = path.join('script/complex.js');
@@ -490,5 +418,33 @@ describe('utils path prerender method', function () {
   it('should prerender mixed path array', function () {
     utils.prerenderOriginPath(['./script/origin.js', '/script/origin.js']).should.eql([targetA, targetA]);
     utils.prerenderOriginPath(['./script/origin.js', '/script/origin.js'], true).should.eql([targetB, targetB]);
+  });
+});
+
+describe.only('utils helper method', function () {
+  it('should merge object', function () {
+    let source = { title: 'story', content: 'never say goodbye' };
+    let destiny = { title: 'love' };
+    (utils.shallowMerge(source, destiny)).should.containEql({ title: 'story', content: 'never say goodbye' })
+  });
+
+  it('should escape strings', function () {
+    let source = "angular.module('cloud', []);\n";
+    (utils.escape(source)).should.equal("angular.module('cloud',[]);")
+  });
+
+  it('should transform stream into promise', function () {
+    let stream = fs.createReadStream(path.join(__dirname, 'fixture/script/origin.js'));
+    let destiny = utils.streamToPromise(stream);
+    return destiny.then(function(value) {
+      (value.toString()).should.equal("angular.module('cloud', []);");
+    });
+  });
+
+  it('should concat separate file', function () {
+    let stream = gulp.src(['./test/fixture/script/origin.js', './test/fixture/script/complex.js']).pipe(utils.concat('build.js'));
+    return utils.streamToPromise(stream).then(function(value) {
+      utils.escape(value.toString()).should.equal(utils.escape("angular.module('cloud', []);angular.module('cloud').controller('MainCtrl', function() {});"));
+    })
   });
 });
