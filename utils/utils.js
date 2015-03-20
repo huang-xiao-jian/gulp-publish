@@ -81,27 +81,27 @@ utils.getBlockPath = function(block) {
   return pathReg.exec(block)[1];
 };
 
-utils.getScriptPath = function(script, debug) {
-  if (jsReg.test(script)) return !debug ? path.join('./', jsReg.exec(script.replace(/^\s*/, ''))[2]) : path.join('./', '/test/fixture', jsReg.exec(script.replace(/^\s*/, ''))[2]);
+utils.getScriptPath = function(script) {
+  if (jsReg.test(script)) return jsReg.exec(script.replace(/^\s*/, ''))[2];
   gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(script), 'the block type refers script', '\n');
   return null;
 };
 
-utils.getLinkPath = function(link, debug) {
-  if (cssReg.test(link)) return !debug ? path.join('./', cssReg.exec(link.replace(/^\s*/, ''))[2]) : path.join('./', '/test/fixture', cssReg.exec(link.replace(/^\s*/, ''))[2]);
+utils.getLinkPath = function(link) {
+  if (cssReg.test(link)) return cssReg.exec(link.replace(/^\s*/, ''))[2];
   gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(link), 'the block type refers link', '\n');
   return null;
 };
 
-utils.getReplacePath = function(line, mode, debug) {
-  if (mode === '.js') return utils.getScriptPath(line, debug);
-  if (mode === '.css') return utils.getLinkPath(line, debug);
+utils.getReplacePath = function(line, mode) {
+  if (utils._script.indexOf(mode) !== -1) return utils.getScriptPath(line);
+  if (utils._stylesheet.indexOf(mode) !== -1) return utils.getLinkPath(line);
+  return null;
 };
 
 /**
  * execute for source files path
  * @param {block} block
- * @param {Boolean} debug - whether execute in unit test environment
  * @returns {Array}
  * @example - typical usage
  * var sample =
@@ -112,7 +112,7 @@ utils.getReplacePath = function(line, mode, debug) {
  * // return ['style/origin.css', 'style/complex.css'];
  * utils.getFilePath(sample);
  */
-utils.getFilePath = function(block, debug) {
+utils.getBlockFilePath = function(block) {
   return block
     .replace(startReg, '')
     .replace(endReg, '')
@@ -123,13 +123,13 @@ utils.getFilePath = function(block, debug) {
     .map(function(value) {
       switch (true) {
         case utils._script.indexOf(utils.getBlockType(block)) !== -1 :
-          return utils.getScriptPath(value, debug);
+          return utils.getScriptPath(value);
           break;
         case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1 :
-          return utils.getLinkPath(value, debug);
+          return utils.getLinkPath(value);
           break;
         case utils.getBlockType(block) === 'replace' :
-          return utils.getReplacePath(value, path.extname(utils.getBlockPath(block)), debug);
+          return utils.getReplacePath(value, path.extname(utils.getBlockPath(block)).slice(1));
           break;
         default :
           return null;
@@ -171,7 +171,8 @@ utils.getBlockFileSource = function(blocks, debug) {
  * @returns {string} - final postfix
  */
 utils.resolvePostfix = function(postfix, block, debug) {
-  if (typeof postfix === 'string' && postfix !== 'md5') return !postfix ? '' : '?' + postfix;
+  if (util.isNullOrUndefined(postfix)) return '';
+  if (util.isString(postfix) && postfix !== 'md5') return '?' + postfix;
 
   var content =[];
   var sources = utils.getFilePath(block, debug)
