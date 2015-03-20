@@ -174,34 +174,26 @@ utils.resolvePostfix = function(postfix, block, debug) {
   if (util.isNullOrUndefined(postfix)) return '';
   if (util.isString(postfix) && postfix !== 'md5') return '?' + postfix;
 
-  var content =[];
-  var sources = utils.getFilePath(block, debug)
-    .map(function(value) {
-      return path.join(process.cwd(), value);
-    });
+  var content;
+  var source = !debug ? utils.getBlockFilePath(block) : utils.prerenderOriginPath(utils.getBlockFilePath(block), true);
 
-  for (var i = 0; i < sources.length; i++) {
+  content = source.reduce(function(prev, current) {
     try {
-      content.push(fs.readFileSync(sources[i]));
+      return Buffer.concat([prev, fs.readFileSync(current)]) ;
     } catch (err) {
-      gutil.log(gutil.colors.red('The file ' + sources[i] + ' not exist, maybe cause postfix deviation'));
+      gutil.log(gutil.colors.red('The file ' + current + ' not exist, maybe cause postfix deviation'));
+      return prev;
     }
+  }, new Buffer(''));
+
+  if (util.isFunction(postfix)) {
+    return '?' + utils.escape(postfix.call(null, content));
   }
 
   if (postfix === 'md5') {
-    var hash = crypto.createHash('md5');
-    for (var j = 0; j < content.length; j++) {
-      hash.update(content[j]);
-    }
+    let hash = crypto.createHash('md5');
+    hash.update(content);
     return '?' + hash.digest('hex');
-  }
-
-  if (typeof postfix === 'function') {
-    var buffer = new Buffer(0);
-    for (var k = 0; k < content.length; k++) {
-      buffer = Buffer.concat([buffer, content[k]]);
-    }
-    return '?' + postfix.call(null, buffer).toString().replace(/\s*/g, '');
   }
 
   return '';
@@ -322,7 +314,7 @@ utils.shallowMerge = function(source, destiny) {
  * @returns {String} - escaped string
  */
 utils.escape = function(string) {
-  return string.replace(/[\n\s]*/gi, '');
+  return string.toString().replace(/[\n\s]*/gi, '');
 };
 
 /**
