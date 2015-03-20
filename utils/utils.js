@@ -104,43 +104,40 @@ utils.getFilePath = function(block, debug) {
       return !spaceReg.test(value);
     })
     .map(function(value) {
-      if (utils._script.indexOf(utils.getBlockType(block)) !== -1) {
-        try {
-          return !debug ? jsReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', jsReg.exec(value.replace(/^\s*/, ''))[2]);
-        } catch (err) {
-          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
+      switch (true) {
+        case utils._script.indexOf(utils.getBlockType(block)) !== -1 :
+          return utils.getScriptPath(value, debug);
+          break;
+        case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1 :
+          return utils.getLinkPath(value, debug);
+          break;
+        case utils.getBlockType(block) === 'replace' :
+          return utils.getReplacePath(value, path.extname(utils.getBlockPath(block)), debug);
+          break;
+        default :
           return null;
-        }
       }
-      if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) {
-        try {
-          return !debug ? cssReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', cssReg.exec(value.replace(/^\s*/, ''))[2]);
-        } catch (err) {
-          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
-          return null;
-        }
-      }
-      if (utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.js') {
-        try {
-          return !debug ? jsReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', jsReg.exec(value.replace(/^\s*/, ''))[2]);
-        } catch (err) {
-          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
-          return null;
-        }
-      }
-      if (utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.css') {
-        try {
-          return !debug ? cssReg.exec(value.replace(/^\s*/, ''))[2] : path.join('./', '/test/fixture', cssReg.exec(value.replace(/^\s*/, ''))[2]);
-        } catch (err) {
-          gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(value), '\n');
-          return null;
-        }
-      }
-      if (utils.getBlockType(block) === 'remove') return null;
     })
     .filter(function(value) {
       return value !== null;
     });
+};
+
+utils.getScriptPath = function(script, debug) {
+  if (jsReg.test(script)) return !debug ? path.join('./', jsReg.exec(script.replace(/^\s*/, ''))[2]) : path.join('./', '/test/fixture', jsReg.exec(script.replace(/^\s*/, ''))[2]);
+  gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(script), 'the block type refers script', '\n');
+  return null;
+};
+
+utils.getLinkPath = function(link, debug) {
+  if (cssReg.test(link)) return !debug ? path.join('./', cssReg.exec(link.replace(/^\s*/, ''))[2]) : path.join('./', '/test/fixture', cssReg.exec(link.replace(/^\s*/, ''))[2]);
+  gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(link), 'the block type refers link', '\n');
+  return null;
+};
+
+utils.getReplacePath = function(line, mode, debug) {
+  if (mode === '.js') return utils.getScriptPath(line, debug);
+  if (mode === '.css') return utils.getLinkPath(line, debug);
 };
 
 /**
@@ -363,6 +360,10 @@ utils.streamToPromise = function(stream) {
       callback();
     }));
   });
+};
+
+utils.noop = function() {
+
 };
 
 // exports the object
