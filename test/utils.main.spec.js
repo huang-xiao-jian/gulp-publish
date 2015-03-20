@@ -99,6 +99,11 @@ describe('utils generateTags method', function () {
     utils.generateTags(scripts, {}).should.equal('<script src="/script/build.js"></script>');
   });
 
+  it('should resolve block into final tags when js reference with normal type and postfix', function () {
+    let scripts = '<!-- build:js /script/build.js --><!-- endbuild -->';
+    utils.generateTags(scripts, { postfix: 'v0.2.5'}).should.equal('<script src="/script/build.js?v0.2.5"></script>');
+  });
+
   it('should resolve block into final tags when remove reference', function () {
     let remove = '<!-- build:remove /script/build.js --><script src="/script/origin.js"></script><!-- endbuild -->';
     should(utils.generateTags(remove, {})).equal(null);
