@@ -1,3 +1,5 @@
+"use strict";
+
 var should = require('should');
 var gulp = require('gulp');
 var through = require('through-gulp');
@@ -239,34 +241,6 @@ describe('utils module', function () {
     utils.resolvePostfix({}, block, true).should.equal('');
   });
 
-  it('should achieve path traverse when relative style path', function (done) {
-    function generateLess() {
-      return through(function(file, enc, callback) {
-        callback(null, file);
-      });
-    }
-
-    var success = through(function(file, enc, callback) {
-      file.contents.toString().should.equal("angular.module('cloud', []);");
-      callback(null, file);
-      done();
-    });
-
-    utils.pathTraverse(['test/fixture/script/origin.js'], [{
-      generator: generateLess
-    }]).pipe(success);
-  });
-
-  it('should achieve path traverse when relative style path', function (done) {
-    var success = through(function(file, enc, callback) {
-      file.contents.toString().should.equal("angular.module('cloud', []);");
-      callback(null, file);
-      done();
-    });
-
-    utils.pathTraverse(['test/fixture/script/origin.js']).pipe(success);
-  });
-
   it('should resolve block into final tags when normal HTML tags only', function () {
     var normal = '<!DOCTYPE html><html><head lang="en"><meta charset="UTF-8"><title>gulp release</title></head><body></body></html>';
     utils.generateTags(normal).should.equal(normal);
@@ -455,5 +429,60 @@ describe('utils module', function () {
     return destiny.then(function(value) {
       (value.toString()).should.equal("angular.module('cloud', []);");
     });
+  });
+});
+
+describe('utils path traverse method', function () {
+  var generatePassStream = function() {
+    return through(function(file, enc, callback) {
+      file.contents = Buffer.concat([new Buffer('PASS '), file.contents]);
+      callback(null, file);
+    });
+  };
+
+  it('should achieve path traverse', function () {
+    let stream = utils.pathTraverse(['test/fixture/script/origin.js'], [generatePassStream()]);
+    let promise = utils.streamToPromise(stream);
+    return promise.then(function(value) {
+      value.toString().should.equal("PASS angular.module('cloud', []);");
+    });
+  });
+
+  it('should achieve just pass through stream when flow miss ', function () {
+    let stream = utils.pathTraverse(['test/fixture/script/origin.js']);
+    let promise = utils.streamToPromise(stream);
+    return promise.then(function(value) {
+      value.toString().should.equal("angular.module('cloud', []);");
+    });
+  });
+});
+
+describe('utils path prerender method', function () {
+  var targetA = path.join('script/origin.js');
+  var targetB = path.join('test/fixture/script/origin.js');
+
+  it('should prerender relative path string', function () {
+    utils.prerenderOriginPath('./script/origin.js').should.eql([targetA]);
+    utils.prerenderOriginPath('./script/origin.js', true).should.eql([targetB]);
+  });
+
+  it('should prerender relative path string', function () {
+    utils.prerenderOriginPath('/script/origin.js').should.eql([targetA]);
+    utils.prerenderOriginPath('/script/origin.js', true).should.eql([targetB]);
+  });
+
+  it('should prerender relative path array', function () {
+    utils.prerenderOriginPath(['./script/origin.js', './script/origin.js']).should.eql([targetA, targetA]);
+    utils.prerenderOriginPath(['./script/origin.js', './script/origin.js'], true).should.eql([targetB, targetB]);
+  });
+
+  it('should prerender absolute path array', function () {
+    utils.prerenderOriginPath(['/script/origin.js', '/script/origin.js']).should.eql([targetA, targetA]);
+    utils.prerenderOriginPath(['/script/origin.js', '/script/origin.js'], true).should.eql([targetB, targetB]);
+  });
+
+  it('should prerender mixed path array', function () {
+    utils.prerenderOriginPath(['./script/origin.js', '/script/origin.js']).should.eql([targetA, targetA]);
+    utils.prerenderOriginPath(['./script/origin.js', '/script/origin.js'], true).should.eql([targetB, targetB]);
   });
 });

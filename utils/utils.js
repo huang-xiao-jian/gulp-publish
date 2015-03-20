@@ -28,6 +28,8 @@
 /**
  * Module dependencies
  */
+"use strict";
+
 var path =require('path');
 var fs = require('fs');
 var util = require('util');
@@ -188,6 +190,15 @@ utils.resolveFileSource = function(sources, options) {
   }
 };
 
+utils.prerenderOriginPath = function(originPath, debug) {
+  if (util.isString(originPath)) return !debug ? [path.join('./', originPath)] : [path.join('./', 'test/fixture/', originPath)];
+  if (util.isArray(originPath)) {
+    return originPath.map(function(value) {
+      return !debug ? path.join('./', value) : path.join('./', 'test/fixture/', value);
+    });
+  }
+};
+
 /**
  * resolve source files through pipeline and return final transform stream
  * @param {Array} originPath - array consist of source file path
@@ -195,14 +206,9 @@ utils.resolveFileSource = function(sources, options) {
  * @returns {Object} - transform stream
  */
 utils.pathTraverse = function(originPath, flow) {
-  var option;
-  var stream = vfs.src(originPath);
-  if (Array.isArray(flow)) {
-    flow = flow.map(function(value) {
-      option = value.config || {};
-      return value.generator(option);
-    });
-
+  let destinyPath = utils.prerenderOriginPath(originPath);
+  var stream = vfs.src(destinyPath);
+  if (util.isArray(flow)) {
     for (var i = 0; i < flow.length; i++) {
       stream = stream.pipe(flow[i]);
     }
