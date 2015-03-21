@@ -153,13 +153,15 @@ utils.getBlockStructure = function(block) {
 /**
  * execute for source files path
  * @param {Array} blocks - Array consist of block
- * @param {Boolean} debug - whether execute in unit test environment
  * @returns {SourceArray}
  */
-utils.getBlockFileSource = function(blocks, debug) {
+utils.getBlockFileSource = function(blocks) {
   return blocks
     .map(function(block) {
-      return utils.getBlockStructure(block, debug);
+      return utils.getBlockStructure(block);
+    })
+    .filter(function(value) {
+      return !util.isNull(value);
     });
 };
 
@@ -225,21 +227,26 @@ utils.generateTags = function(block, options) {
 utils.resolveFileSource = function(sources, options) {
   if (!sources || !options) return false;
 
+  sources = sources.filter(function(value) {
+    return (utils._script.indexOf(value.type) !== -1 || utils._stylesheet.indexOf(value.type) !== -1) && value.files.length !== 0 && value.destiny;
+  });
+
+  if (sources.length === 0) return false;
+
   for (var i = 0; i < sources.length; i++) {
-    var type = sources[i].type;
+    var parser = options[sources[i].type];
+    var files = sources[i].files;
     var destiny = path.join('./', sources[i].destiny);
-    var files = sources[i].files.map(function(value) {
-      return path.join(process.cwd(), value);
-    });
-    if (files.length !== 0 && type !== 'replace' && destiny) {
-      var parser = options[sources[i].type];
-      if (!parser || parser.length === 0)  {
-        utils.pathTraverse(files).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
-      }
-      if (parser && parser.length !== 0) {
-        utils.pathTraverse(files, parser).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
-      }
+    var stream;
+    if (!parser || parser.length === 0)  {
+      stream = utils.pathTraverse(files, null, options.debug).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
+    } else {
+      stream = utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
     }
+    stream.on('end', function() {
+      let notify = options.notify;
+      notify ? notify.Trigger.emit(notify.Event) : utils.noop();
+    });
   }
 };
 
@@ -270,10 +277,11 @@ utils.prerenderOriginPath = function(originPath, debug) {
  * resolve source files through pipeline and return final transform stream
  * @param {Array} originPath - array consist of source file path
  * @param {Array} flow - array consist of transform stream, like [less(),cssmin()], or [coffee(), uglify()]
+ * @param {Boolean} debug
  * @returns {Object} - transform stream
  */
-utils.pathTraverse = function(originPath, flow) {
-  let destinyPath = utils.prerenderOriginPath(originPath);
+utils.pathTraverse = function(originPath, flow, debug) {
+  let destinyPath = utils.prerenderOriginPath(originPath, debug);
   var stream = vfs.src(destinyPath);
   if (util.isArray(flow)) {
     for (var i = 0; i < flow.length; i++) {
@@ -357,6 +365,8 @@ utils.concat = function(fileName) {
     callback();
   })
 };
+
+utils.noop = function() {};
 
 // exports the object
 module.exports = utils;

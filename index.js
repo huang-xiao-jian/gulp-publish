@@ -7,6 +7,8 @@
 /**
  * Module dependencies
  */
+"use strict";
+
 var through = require('through-gulp');
 var gutil = require('gulp-util');
 var utils = require('./utils/utils.js');
@@ -21,7 +23,6 @@ function publish(opts) {
   // stream options
   var defaults = {
     enableResolve: false,
-    postfix: '',
     directory: './build',
     debug: false
   };
@@ -43,7 +44,7 @@ function publish(opts) {
 
     // resolve the files linked by tag script and link
     if (options.enableResolve) {
-      var fileSource = utils.getFileSource(blocks, options.debug);
+      let fileSource = utils.getBlockFileSource(blocks);
       utils.resolveFileSource(fileSource, options);
     }
 
