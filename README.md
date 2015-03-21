@@ -128,18 +128,10 @@ Complete options act like below:
   enableResolve: true,
   postfix: '',
   directory: './build',
-  css: [
-    {
-      generator: cssmin,
-      config: {} // options for cssmin
-    }
-  ]
-  js: [
-    {
-      generator: uglify,
-      config: {} // options for uglify
-    }
-  ],
+  js: [[uglify, {}]],
+  coffee: [[coffee, {}], [uglify, {}]],
+  css: [[cssmin, {}]],
+  less: [[less, {}], [cssmin, {}]]
   debug: true
 }
 ```
@@ -165,15 +157,12 @@ For example, set postfix `v0.2.5`, will generate tags below:
 ### css
 Type: Array
 
-Value consists of object with property `generator`, `config`.  Generally speaking, any `gulp-plugin` exports `generator` here, and config property pass to the `generator`. Declare how to resolve css files. if omitted or null, will only concat related files.
+Value consists of two-element array, the first is `generator`, the second is `config`.  Generally speaking, any `gulp-plugin` exports `generator` here, and config property pass to the `generator`. Declare how to resolve css files. if omitted or null, will only concat related files.
 
 For example:
 ```javascript
 [
-  {
-    generator: less,
-    config: {}
-  }
+  less: [ [less, {}], [cssmin, {}] ]
 ]
 ```
 
