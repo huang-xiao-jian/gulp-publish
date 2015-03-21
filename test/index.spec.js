@@ -6,7 +6,6 @@ var should = require('should');
 var publish = require('../index.js');
 var utils = require('../utils/utils.js');
 var EventEmitter = require('events');
-var uglify = require('gulp-uglify');
 var coffee = require('gulp-coffee');
 var emitter = new EventEmitter();
 
@@ -24,8 +23,8 @@ describe('plugin module', function () {
     let stream = vfs.src('test/fixture/integrate.html').pipe(publish());
     let promise = utils.streamToPromise(stream);
     let destination = '<!DOCTYPE html><html><head lang="en"><meta charset="UTF-8"><title>gulp release</title>'
-      + '<link rel="stylesheet" href="/style/build.css"/><script src="/script/build.js"></script><script src="/script/build.js"></script>'
-      + '<link rel="stylesheet" href="/style/build.css"/><script src="/script/build.js"></script></head><body></body></html>';
+      + '<link rel="stylesheet" href="/style/build.css"/><script src="/script/build.js"></script><script src="/script/integrate.js"></script>'
+      + '<link rel="stylesheet" href="/style/integrate.css"/><script src="/script/integrate.js"></script></head><body></body></html>';
     return promise.then(function(value) {
       utils.escape(value.toString()).should.equal(utils.escape(destination));
     });
@@ -39,7 +38,7 @@ describe('plugin module', function () {
     vfs.src('./test/fixture/coffee.html')
       .pipe(publish({
         enableResolve: true,
-        coffee: [coffee()],
+        coffee: [[coffee, {}]],
         debug: true,
         notify: {
           Trigger : emitter,

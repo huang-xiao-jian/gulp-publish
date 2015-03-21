@@ -67,7 +67,7 @@ describe('utils resolveFileSource method', function () {
     let options = {
       directory: './build',
       debug: true,
-      coffee: [coffee(), uglify()],
+      coffee: [[coffee, {}], [uglify, {}]],
       notify: {
         Trigger : emitter,
         Event: 'COFFEE'
@@ -94,7 +94,7 @@ describe('utils resolveFileSource method', function () {
     let options = {
       directory: './build',
       debug: true,
-      less: [less(),cssmin()],
+      less: [[less, {}], [cssmin, {}]],
       notify: {
         Trigger : emitter,
         Event: 'LESS'

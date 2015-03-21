@@ -285,7 +285,9 @@ utils.pathTraverse = function(originPath, flow, debug) {
   var stream = vfs.src(destinyPath);
   if (util.isArray(flow)) {
     for (var i = 0; i < flow.length; i++) {
-      stream = stream.pipe(flow[i]);
+      let generator = flow[i][0];
+      let options = flow[i][1];
+      stream = stream.pipe(generator(options));
     }
   }
 

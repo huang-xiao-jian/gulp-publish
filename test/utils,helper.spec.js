@@ -21,7 +21,7 @@ describe('utils path traverse method', function () {
   };
 
   it('should achieve path traverse', function () {
-    let stream = utils.pathTraverse(['test/fixture/script/origin.js'], [generatePassStream()]);
+    let stream = utils.pathTraverse(['test/fixture/script/origin.js'], [[generatePassStream, {}]]);
     let promise = utils.streamToPromise(stream);
     return promise.then(function(value) {
       value.toString().should.equal("PASS angular.module('cloud', []);");
