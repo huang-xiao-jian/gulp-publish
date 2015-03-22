@@ -8,7 +8,33 @@ var cssmin = require('gulp-cssmin');
 var uglify = require('gulp-uglify');
 var less = require('gulp-less');
 var coffee = require('gulp-coffee');
+var through = require('through-gulp');
 var emitter = new EventEmitter();
+
+describe('utils path traverse method', function () {
+  var generatePassStream = function() {
+    return through(function(file, enc, callback) {
+      file.contents = Buffer.concat([new Buffer('PASS '), file.contents]);
+      callback(null, file);
+    });
+  };
+
+  it('should achieve just pass through stream when flow miss ', function () {
+    let stream = utils.pathTraverse(['test/fixture/script/origin.js']);
+    let promise = utils.streamToPromise(stream);
+    return promise.then(function(value) {
+      value.toString().should.equal("angular.module('cloud', []);");
+    });
+  });
+
+  it('should achieve path traverse', function () {
+    let stream = utils.pathTraverse(['test/fixture/script/origin.js'], [[generatePassStream, {}]]);
+    let promise = utils.streamToPromise(stream);
+    return promise.then(function(value) {
+      value.toString().should.equal("PASS angular.module('cloud', []);");
+    });
+  });
+});
 
 describe('utils resolveFileSource method', function () {
   it('should not resolve source files when miss sources or options', function () {

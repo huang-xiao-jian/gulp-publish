@@ -42,6 +42,7 @@ var gutil = require('gulp-util');
 var startReg = /<!--\s+build:\w+\s+\/?[^\s]+\s+-->/gim;
 var startMirrorReg = /<!--\s+build:\w+\s+\/?[^\s]+\s+-->/i;
 var endReg = /<!--\s*endbuild\s*-->/gim;
+var endMirrorReg = /<!--\s*endbuild\s*-->/i;
 var splitReg = /<!--\s+split\s+-->/gim;
 var jsReg = /<\s*script\s+.*?src\s*=\s*("|')([^"']+?)\1.*?><\s*\/\s*script\s*>/i;
 var cssReg = /<\s*link\s+.*?href\s*=\s*("|')([^"']+)\1.*?>/i;
@@ -52,7 +53,7 @@ var utils = {};
 
 // supported file type
 utils._stylesheet = ['css', 'less', 'stylus', 'sass'];
-utils._script = ['js', 'coffee'];
+utils._script = ['js', 'coffee', 'typescript', 'jsx'];
 
 /**
  * split the HTML into several blocks
@@ -124,13 +125,12 @@ utils.getBlockFilePath = function(block) {
       switch (true) {
         case utils._script.indexOf(utils.getBlockType(block)) !== -1 :
           return utils.getScriptPath(value);
-          break;
         case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1 :
           return utils.getLinkPath(value);
-          break;
         case utils.getBlockType(block) === 'replace' :
           return utils.getReplacePath(value, path.extname(utils.getBlockPath(block)).slice(1));
-          break;
+        case utils.getBlockType(block) === 'remove' :
+          return null;
         default :
           return null;
       }
@@ -141,13 +141,15 @@ utils.getBlockFilePath = function(block) {
 };
 
 utils.getBlockStructure = function(block) {
-  if (!startMirrorReg.test(block)) return null;
-
   return {
     type: utils.getBlockType(block),
     destiny: utils.getBlockPath(block),
     files: utils.getBlockFilePath(block)
   }
+};
+
+utils.isBlock = function(block) {
+  return startMirrorReg.test(block) && endMirrorReg.test(block);
 };
 
 /**
@@ -157,11 +159,11 @@ utils.getBlockStructure = function(block) {
  */
 utils.getBlockFileSource = function(blocks) {
   return blocks
+    .filter(function(block) {
+      return utils.isBlock(block);
+    })
     .map(function(block) {
       return utils.getBlockStructure(block);
-    })
-    .filter(function(value) {
-      return !util.isNull(value);
     });
 };
 
@@ -208,14 +210,22 @@ utils.resolvePostfix = function(postfix, block, debug) {
  * @returns {String}
  */
 utils.generateTags = function(block, options) {
-  if (!startMirrorReg.test(block)) return block;
-  if (utils._script.indexOf(utils.getBlockType(block)) !== -1) return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
-  if (utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1) return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
-  if (utils.getBlockType(block) === 'replace') {
-    if (path.extname(utils.getBlockPath(block)) === '.js') return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
-    if (path.extname(utils.getBlockPath(block)) === '.css') return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
+  switch (true) {
+    case !utils.isBlock(block):
+      return block;
+    case utils._script.indexOf(utils.getBlockType(block)) !== -1 :
+      return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
+    case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1 :
+      return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
+    case utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.js' :
+      return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
+    case utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.css' :
+      return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
+    case utils.getBlockType(block) === 'remove' :
+      return null;
+    default :
+      return null;
   }
-  if (utils.getBlockType(block) === 'remove') return null;
 };
 
 /**

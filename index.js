@@ -12,7 +12,7 @@
 var through = require('through-gulp');
 var gutil = require('gulp-util');
 var utils = require('./utils/utils.js');
-var PLUGIN = 'gulp-publish';
+const PLUGIN = 'gulp-publish';
 
 /**
  * Return transform stream which resolve HTML files.
