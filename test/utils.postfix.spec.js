@@ -5,7 +5,7 @@ var vfs = require('vinyl-fs');
 var utils = require('../utils/utils.js');
 
 describe('utils postfix method', function () {
-  const Block =  '<!-- build:js /script/build.js -->\n' + '<script src="/script/origin.js"></script>\n' + '<script src="/script/complex.js"></script>\n' + '<!-- endbuild -->\n';
+  const Block =  '<!-- build:js /script/build.js -->\n<script src="/script/origin.js"></script>\n<script src="/script/complex.js"></script>\n<!-- endbuild -->\n';
   const File = ['test/fixture/script/origin.js', 'test/fixture/script/complex.js'];
 
   it('should resolve fixed postfix', function () {
