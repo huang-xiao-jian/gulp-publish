@@ -82,18 +82,41 @@ utils.getBlockPath = function(block) {
   return pathReg.exec(block)[1];
 };
 
+/**
+ * execute for file target path
+ * @param {String} script
+ * @returns {String}
+ * @example
+ * // return "/js/origin.js"
+ * utils.getScriptPath('<script src="/js/origin.js"></script>');
+ */
 utils.getScriptPath = function(script) {
   if (jsReg.test(script)) return jsReg.exec(script.replace(/^\s*/, ''))[2];
   gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(script), 'the block type refers script', '\n');
   return null;
 };
 
+/**
+ * execute for file target path
+ * @param {String} link
+ * @returns {String}
+ * @example
+ * // return "/style/origin.css"
+ * utils.getLinkPath('<link rel="stylesheet" href="/style/origin.css">')
+ */
 utils.getLinkPath = function(link) {
   if (cssReg.test(link)) return cssReg.exec(link.replace(/^\s*/, ''))[2];
   gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(link), 'the block type refers link', '\n');
   return null;
 };
 
+/**
+ * execute for file target path
+ * @param {String} line
+ * @param {String} mode - the content property, must exists in ['js', 'coffee', 'typescript', 'jsx'], ['css', 'less', 'sass', 'stylus']
+ * @returns {String}
+ * @see refer {@links utils.getScriptPath}, {@links utils.getLinkPath} for details
+ */
 utils.getReplacePath = function(line, mode) {
   if (utils._script.indexOf(mode) !== -1) return utils.getScriptPath(line);
   if (utils._stylesheet.indexOf(mode) !== -1) return utils.getLinkPath(line);
@@ -140,6 +163,11 @@ utils.getBlockFilePath = function(block) {
     });
 };
 
+/**
+ * get block description structure
+ * @param block
+ * @returns {{type: String, destiny: String, files: Array}}
+ */
 utils.getBlockStructure = function(block) {
   return {
     type: utils.getBlockType(block),
@@ -148,6 +176,11 @@ utils.getBlockStructure = function(block) {
   }
 };
 
+/**
+ * check if fragment belongs block
+ * @param {String} block
+ * @returns {boolean}
+ */
 utils.isBlock = function(block) {
   return startMirrorReg.test(block) && endMirrorReg.test(block);
 };
@@ -378,6 +411,9 @@ utils.concat = function(fileName) {
   })
 };
 
+/**
+ * just a noop function
+ */
 utils.noop = function() {};
 
 // exports the object
