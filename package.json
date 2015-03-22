@@ -1,6 +1,6 @@
 {
   "name": "gulp-publish",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Replaces references to non-optimized scripts or stylesheets into a set of HTML files.",
   "main": "index.js",
   "author": "bornkiller <hj491229492@gmail.com>",

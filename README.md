@@ -43,7 +43,7 @@ Any link script markup
 <!-- endbuild -->
 ```
 
-- **type**: declare the way to resolve internal markups and related files, e.g `js`, `css`, `less`, `coffee`,
+- **type**: declare the way to resolve internal markups and related files, e.g `js`, `coffee`, `typescript`, `jsx`, `css`, `less`, `sass`, `stylus`,
 `stylus`, `sass`, `remove`, `replace`. Linked files should match type, if mismatch, will skip the specific tag. Such as, you place `css` type, but use `<script></script>` tags.
 - **path**: the file output path relative to process.cwd().
 
@@ -67,7 +67,7 @@ As below, will generate `<script src="/script/build.js"></script>`, and will nev
 <!-- endbuild -->
 ```
 
-Also, when block does't have any HTML tags, will just add corespond tags, below will insert `<script src="/build/script/build.js"></script>` , `<link rel="stylesheet" href="/style/build.css"/>` into html.
+Also, when block do not have any HTML tags, will just add correspond tags, below will insert `<script src="/build/script/build.js"></script>` , `<link rel="stylesheet" href="/style/build.css"/>` into html.
 
 ```html
 <!-- build:js /build/script/build.js -->
@@ -159,7 +159,7 @@ For example, set postfix `v0.2.5`, will generate tags below:
 ### css
 Type: Array
 
-Value consists of two-element array, the first is `generator`, the second is `config`.  Generally speaking, any `gulp-plugin` exports `generator` here, and config property pass to the `generator`. Declare how to resolve css files. if omitted or null, will only concat related files.
+Value consists of two-element array, the first is `generator`, the second is `config`.  Generally speaking, any `gulp-plugin` exports `generator` here, and `config` property pass to the `generator`. Declare how to resolve css type block files. if omitted or null, will only concat related files.
 
 For example:
 ```javascript
@@ -168,8 +168,8 @@ For example:
 ]
 ```
 
-### js, coffee, less, stylus, sass
-Almost the same thing as `css` above, to resolve correspond files. `js`, `less`, `coffee` pass the test, `stylus`, `sass` will dance as well.
+### js, coffee, typescript, jsx, less, stylus, sass
+Almost the same thing as `css` above, to resolve correspond files. `js`, `less`, `coffee` pass the test, `typescript`, `jsx`, `stylus`, `sass` will dance as well.
 
 ### debug
 Type: boolean
@@ -189,7 +189,6 @@ Making an assumption, put `gulp-less`, `gulp-coffee` into `css` or `js` config a
 but I think provide `less`, `coffee` type is necessary.
 
 + The type option array consist of object to get the final stream, rather than normal stream. That's because there would be several source stream pass the `pipeline flow`, if stream, will cause content mismatch, and after any source stream emit `end`, the stream would never write again.
-+ Unit test will check some file exists, so clear build directory before.
 
 ## Contact
 **hjj491229492@hotmail.com**
