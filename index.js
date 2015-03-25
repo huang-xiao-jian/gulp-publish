@@ -12,7 +12,7 @@
 var through = require('through-gulp');
 var gutil = require('gulp-util');
 var utils = require('./utils/utils.js');
-const PLUGIN = 'gulp-publish';
+var PLUGIN = 'gulp-publish';
 
 /**
  * Return transform stream which resolve HTML files.
@@ -44,7 +44,7 @@ function publish(opts) {
 
     // resolve the files linked by tag script and link
     if (options.enableResolve) {
-      let fileSource = utils.getBlockFileSource(blocks);
+      var fileSource = utils.getBlockFileSource(blocks);
       utils.resolveFileSource(fileSource, options);
     }
 

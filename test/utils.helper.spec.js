@@ -7,8 +7,8 @@ var path = require('path');
 var utils = require('../utils/utils.js');
 
 describe('utils path prerender method', function () {
-  const OriginTarget = 'script/origin.js';
-  const DebugTarget = 'test/fixture/script/origin.js';
+  const OriginTarget = path.join('script/origin.js');
+  const DebugTarget = path.join('test/fixture/script/origin.js');
 
   it('should prerender relative path string', function () {
     utils.prerenderOriginPath('./script/origin.js').should.eql([OriginTarget]);

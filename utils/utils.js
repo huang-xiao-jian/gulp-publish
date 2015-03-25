@@ -228,7 +228,7 @@ utils.resolvePostfix = function(postfix, block, debug) {
   }
 
   if (postfix === 'md5') {
-    let hash = crypto.createHash('md5');
+    var hash = crypto.createHash('md5');
     hash.update(content);
     return '?' + hash.digest('hex');
   }
@@ -287,7 +287,7 @@ utils.resolveFileSource = function(sources, options) {
       stream = utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
     }
     stream.on('end', function() {
-      let notify = options.notify;
+      var notify = options.notify;
       notify ? notify.Trigger.emit(notify.Event) : utils.noop();
     });
   }
@@ -324,12 +324,12 @@ utils.prerenderOriginPath = function(originPath, debug) {
  * @returns {Object} - transform stream
  */
 utils.pathTraverse = function(originPath, flow, debug) {
-  let destinyPath = utils.prerenderOriginPath(originPath, debug);
+  var destinyPath = utils.prerenderOriginPath(originPath, debug);
   var stream = vfs.src(destinyPath);
   if (util.isArray(flow)) {
     for (var i = 0; i < flow.length; i++) {
-      let generator = flow[i][0];
-      let options = flow[i][1];
+      var generator = flow[i][0];
+      var options = flow[i][1];
       stream = stream.pipe(generator(options));
     }
   }
