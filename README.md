@@ -12,8 +12,6 @@ ready for production environment.
 Replace references to release scripts or stylesheets HTML tags, and provide API for resolve
 linked files identified by `src` or `href`.
 
-**Now, I use several ES6 feature, which iojs support, node not, so, I am trying to fix this.**
-
 ## Usage
 
 First, install `gulp-publish` as a development dependency:
