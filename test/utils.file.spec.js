@@ -27,8 +27,16 @@ describe('utils path traverse method', function () {
     });
   });
 
-  it('should achieve path traverse', function () {
+  it('should support path traverse when provide standard two-element array', function () {
     let stream = utils.pathTraverse(['test/fixture/script/origin.js'], [[generatePassStream, {}]]);
+    let promise = utils.streamToPromise(stream);
+    return promise.then(function(value) {
+      value.toString().should.equal("PASS angular.module('cloud', []);");
+    });
+  });
+
+  it('should support path traverse when provide simplify generator element array', function () {
+    let stream = utils.pathTraverse(['test/fixture/script/origin.js'], [generatePassStream]);
     let promise = utils.streamToPromise(stream);
     return promise.then(function(value) {
       value.toString().should.equal("PASS angular.module('cloud', []);");

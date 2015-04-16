@@ -158,6 +158,7 @@ For example, set postfix `v0.2.5`, will generate tags below:
 Type: Array
 
 Value consists of two-element array, the first is `generator`, the second is `config`.  Generally speaking, any `gulp-plugin` exports `generator` here, and `config` property pass to the `generator`. Declare how to resolve css type block files. if omitted or null, will only concat related files.
+Also, you can just use `generator` here rather than two-element array when no additional options should pass in the `generator`.
 
 For example:
 ```javascript
