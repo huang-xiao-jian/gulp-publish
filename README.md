@@ -9,7 +9,7 @@
 `gulp-publish` make out from `gulp-usemin` branch for some entire different idea, and not
 ready for production environment.
 
-Replace references to release scripts or stylesheets HTML tags, and provide API for resolve
+Replace references to scripts or stylesheets into final HTML tags, and provide API for resolve
 linked files identified by `src` or `href`.
 
 ## Usage
@@ -41,8 +41,7 @@ Any link script markup
 <!-- endbuild -->
 ```
 
-- **type**: declare the way to resolve internal markups and related files, e.g `js`, `coffee`, `typescript`, `jsx`, `css`, `less`, `sass`, `stylus`,
-`stylus`, `sass`, `remove`, `replace`. Linked files should match type, if mismatch, will skip the specific tag. Such as, you place `css` type, but use `<script></script>` tags.
+- **type**: declare the way to resolve internal markups and related files, e.g `js`, `coffee`, `typescript`, `jsx`, `css`, `less`, `sass`, `stylus`, `remove`, `replace`. Linked files should match type, if mismatch, will skip the specific tag. Such as, you place `css` type, but use `<script></script>` tags.
 - **path**: the file output path relative to process.cwd().
 
 **Remember not miss the block split flag between normal HTML and block, block and block, block and normal HTML, add split flag**
@@ -162,9 +161,9 @@ Also, you can just use `generator` here rather than two-element array when no ad
 
 For example:
 ```javascript
-[
-  less: [ [less, {}], [cssmin, {}] ]
-]
+{
+ css : [ [less, {}], [cssmin, {}] ]
+}
 ```
 
 ### js, coffee, typescript, jsx, less, stylus, sass
@@ -187,7 +186,7 @@ like below:
 Making an assumption, put `gulp-less`, `gulp-coffee` into `css` or `js` config array will achieve the same thing,
 but I think provide `less`, `coffee` type is necessary.
 
-+ The type option array consist of object to get the final stream, rather than normal stream. That's because there would be several source stream pass the `pipeline flow`, if stream, will cause content mismatch, and after any source stream emit `end`, the stream would never write again.
+The `type` option array consist of object to get the final pipable stream, rather than direct normal stream. That's because there would be several source stream pass the `pipeline flow`, if stream, will cause content mismatch, and after any source stream emit `end`, the stream would never writable again.
 
 ## Contact
 **hjj491229492@hotmail.com**
