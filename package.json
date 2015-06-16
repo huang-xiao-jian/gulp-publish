@@ -4,9 +4,6 @@
   "description": "Replaces references to non-optimized scripts or stylesheets into a set of HTML files.",
   "main": "render/index.js",
   "author": "bornkiller <hj491229492@gmail.com>",
-  "scripts": {
-      "prepublish": "./node_modules/.bin/babel index.js -o render/index.js && ./node_modules/.bin/babel utils/ -d render/utils/"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/bornkiller/gulp-publish.git"
@@ -44,6 +41,7 @@
     "should": "~5.2.0"
   },
   "scripts": {
+    "prepublish": "./node_modules/.bin/babel index.js -o render/index.js && ./node_modules/.bin/babel utils/ -d render/utils/",
     "test-visual": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report html -- --compilers js:babel-core/register",
     "test-travis": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- --compilers js:babel-core/register"
   }
