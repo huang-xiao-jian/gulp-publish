@@ -28,9 +28,9 @@
 /**
  * Module dependencies
  */
-"use strict";
+'use strict';
 
-var path =require('path');
+var path = require('path');
 var fs = require('fs');
 var util = require('util');
 var crypto = require('crypto');
@@ -60,7 +60,7 @@ utils._script = ['js', 'coffee', 'typescript', 'jsx'];
  * @param {string} string
  * @returns {Array}
  */
-utils.getSplitBlock = function(string) {
+utils.getSplitBlock = function (string) {
   return string.split(splitReg);
 };
 
@@ -69,7 +69,7 @@ utils.getSplitBlock = function(string) {
  * @param {block} block
  * @returns {String}
  */
-utils.getBlockType = function(block) {
+utils.getBlockType = function (block) {
   return typeReg.exec(block)[1];
 };
 
@@ -78,7 +78,7 @@ utils.getBlockType = function(block) {
  * @param {block} block
  * @returns {String}
  */
-utils.getBlockPath = function(block) {
+utils.getBlockPath = function (block) {
   return pathReg.exec(block)[1];
 };
 
@@ -90,7 +90,7 @@ utils.getBlockPath = function(block) {
  * // return "/js/origin.js"
  * utils.getScriptPath('<script src="/js/origin.js"></script>');
  */
-utils.getScriptPath = function(script) {
+utils.getScriptPath = function (script) {
   if (jsReg.test(script)) return jsReg.exec(script.replace(/^\s*/, ''))[2];
   gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(script), 'the block type refers script', '\n');
   return null;
@@ -104,7 +104,7 @@ utils.getScriptPath = function(script) {
  * // return "/style/origin.css"
  * utils.getLinkPath('<link rel="stylesheet" href="/style/origin.css">')
  */
-utils.getLinkPath = function(link) {
+utils.getLinkPath = function (link) {
   if (cssReg.test(link)) return cssReg.exec(link.replace(/^\s*/, ''))[2];
   gutil.log(gutil.colors.green('failed resolve source path from'), gutil.colors.green(link), 'the block type refers link', '\n');
   return null;
@@ -117,7 +117,7 @@ utils.getLinkPath = function(link) {
  * @returns {String}
  * @see refer {@links utils.getScriptPath}, {@links utils.getLinkPath} for details
  */
-utils.getReplacePath = function(line, mode) {
+utils.getReplacePath = function (line, mode) {
   if (utils._script.indexOf(mode) !== -1) return utils.getScriptPath(line);
   if (utils._stylesheet.indexOf(mode) !== -1) return utils.getLinkPath(line);
   return null;
@@ -136,31 +136,25 @@ utils.getReplacePath = function(line, mode) {
  * // return ['style/origin.css', 'style/complex.css'];
  * utils.getFilePath(sample);
  */
-utils.getBlockFilePath = function(block) {
-  return block
-    .replace(startReg, '')
-    .replace(endReg, '')
-    .split('\n')
-    .filter(function(value) {
-      return !spaceReg.test(value);
-    })
-    .map(function(value) {
-      switch (true) {
-        case utils._script.indexOf(utils.getBlockType(block)) !== -1 :
-          return utils.getScriptPath(value);
-        case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1 :
-          return utils.getLinkPath(value);
-        case utils.getBlockType(block) === 'replace' :
-          return utils.getReplacePath(value, path.extname(utils.getBlockPath(block)).slice(1));
-        case utils.getBlockType(block) === 'remove' :
-          return null;
-        default :
-          return null;
-      }
-    })
-    .filter(function(value) {
-      return value !== null;
-    });
+utils.getBlockFilePath = function (block) {
+  return block.replace(startReg, '').replace(endReg, '').split('\n').filter(function (value) {
+    return !spaceReg.test(value);
+  }).map(function (value) {
+    switch (true) {
+      case utils._script.indexOf(utils.getBlockType(block)) !== -1:
+        return utils.getScriptPath(value);
+      case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1:
+        return utils.getLinkPath(value);
+      case utils.getBlockType(block) === 'replace':
+        return utils.getReplacePath(value, path.extname(utils.getBlockPath(block)).slice(1));
+      case utils.getBlockType(block) === 'remove':
+        return null;
+      default:
+        return null;
+    }
+  }).filter(function (value) {
+    return value !== null;
+  });
 };
 
 /**
@@ -168,12 +162,12 @@ utils.getBlockFilePath = function(block) {
  * @param block
  * @returns {{type: String, destiny: String, files: Array}}
  */
-utils.getBlockStructure = function(block) {
+utils.getBlockStructure = function (block) {
   return {
     type: utils.getBlockType(block),
     destiny: utils.getBlockPath(block),
     files: utils.getBlockFilePath(block)
-  }
+  };
 };
 
 /**
@@ -181,7 +175,7 @@ utils.getBlockStructure = function(block) {
  * @param {String} block
  * @returns {boolean}
  */
-utils.isBlock = function(block) {
+utils.isBlock = function (block) {
   return startMirrorReg.test(block) && endMirrorReg.test(block);
 };
 
@@ -190,14 +184,12 @@ utils.isBlock = function(block) {
  * @param {Array} blocks - Array consist of block
  * @returns {SourceArray}
  */
-utils.getBlockFileSource = function(blocks) {
-  return blocks
-    .filter(function(block) {
-      return utils.isBlock(block);
-    })
-    .map(function(block) {
-      return utils.getBlockStructure(block);
-    });
+utils.getBlockFileSource = function (blocks) {
+  return blocks.filter(function (block) {
+    return utils.isBlock(block);
+  }).map(function (block) {
+    return utils.getBlockStructure(block);
+  });
 };
 
 /**
@@ -207,16 +199,16 @@ utils.getBlockFileSource = function(blocks) {
  * @param {Boolean} debug - whether debug environment
  * @returns {string} - final postfix
  */
-utils.resolvePostfix = function(postfix, block, debug) {
+utils.resolvePostfix = function (postfix, block, debug) {
   if (util.isNullOrUndefined(postfix)) return '';
   if (util.isString(postfix) && postfix !== 'md5') return '?' + postfix;
 
   var content;
   var source = utils.prerenderOriginPath(utils.getBlockFilePath(block), debug);
 
-  content = source.reduce(function(prev, current) {
+  content = source.reduce(function (prev, current) {
     try {
-      return Buffer.concat([prev, fs.readFileSync(current)]) ;
+      return Buffer.concat([prev, fs.readFileSync(current)]);
     } catch (err) {
       gutil.log(gutil.colors.red('The file ' + current + ' not exist, maybe cause postfix deviation'));
       return prev;
@@ -242,21 +234,21 @@ utils.resolvePostfix = function(postfix, block, debug) {
  * @param {Object} options - plugin argument object
  * @returns {String}
  */
-utils.generateTags = function(block, options) {
+utils.generateTags = function (block, options) {
   switch (true) {
     case !utils.isBlock(block):
       return block;
-    case utils._script.indexOf(utils.getBlockType(block)) !== -1 :
+    case utils._script.indexOf(utils.getBlockType(block)) !== -1:
       return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
-    case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1 :
+    case utils._stylesheet.indexOf(utils.getBlockType(block)) !== -1:
       return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
-    case utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.js' :
+    case utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.js':
       return '<script src="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"></script>';
-    case utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.css' :
+    case utils.getBlockType(block) === 'replace' && path.extname(utils.getBlockPath(block)) === '.css':
       return '<link rel="stylesheet" href="' + utils.getBlockPath(block) + utils.resolvePostfix(options.postfix, block, options.debug) + '"/>';
-    case utils.getBlockType(block) === 'remove' :
+    case utils.getBlockType(block) === 'remove':
       return null;
-    default :
+    default:
       return null;
   }
 };
@@ -267,10 +259,10 @@ utils.generateTags = function(block, options) {
  * @param {Object} options
  * @returns {boolean}
  */
-utils.resolveFileSource = function(sources, options) {
+utils.resolveFileSource = function (sources, options) {
   if (!sources || !options) return false;
 
-  sources = sources.filter(function(value) {
+  sources = sources.filter(function (value) {
     return (utils._script.indexOf(value.type) !== -1 || utils._stylesheet.indexOf(value.type) !== -1) && value.files.length !== 0 && value.destiny;
   });
 
@@ -281,12 +273,12 @@ utils.resolveFileSource = function(sources, options) {
     var files = sources[i].files;
     var destiny = path.join('./', sources[i].destiny);
     var stream;
-    if (!parser || parser.length === 0)  {
+    if (!parser || parser.length === 0) {
       stream = utils.pathTraverse(files, null, options.debug).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
     } else {
       stream = utils.pathTraverse(files, parser, options.debug).pipe(utils.concat(destiny)).pipe(vfs.dest(path.join('./', options.directory)));
     }
-    stream.on('end', function() {
+    stream.on('end', function () {
       var notify = options.notify;
       notify ? notify.Trigger.emit(notify.Event) : utils.noop();
     });
@@ -299,18 +291,18 @@ utils.resolveFileSource = function(sources, options) {
  * @param {Object} options - plugin argument object
  * @returns {String}
  */
-utils.resolveSourceToDestiny = function(blocks, options) {
-  var result = blocks.map(function(block) {
+utils.resolveSourceToDestiny = function (blocks, options) {
+  var result = blocks.map(function (block) {
     return utils.generateTags(block, options);
   });
 
   return result.join('\n');
 };
 
-utils.prerenderOriginPath = function(originPath, debug) {
+utils.prerenderOriginPath = function (originPath, debug) {
   if (util.isString(originPath)) return !debug ? [path.join('./', originPath)] : [path.join('./', 'test/fixture/', originPath)];
   if (util.isArray(originPath)) {
-    return originPath.map(function(value) {
+    return originPath.map(function (value) {
       return !debug ? path.join('./', value) : path.join('./', 'test/fixture/', value);
     });
   }
@@ -323,12 +315,13 @@ utils.prerenderOriginPath = function(originPath, debug) {
  * @param {Boolean} debug
  * @returns {Object} - transform stream
  */
-utils.pathTraverse = function(originPath, flow, debug) {
+utils.pathTraverse = function (originPath, flow, debug) {
   var destinyPath = utils.prerenderOriginPath(originPath, debug);
   var stream = vfs.src(destinyPath);
   if (util.isArray(flow)) {
     for (var i = 0; i < flow.length; i++) {
-      let generator, options;
+      var generator = undefined,
+          options = undefined;
       if (util.isArray(flow[i])) {
         generator = flow[i][0];
         options = flow[i][1];
@@ -358,7 +351,7 @@ utils.pathTraverse = function(originPath, flow, debug) {
  *     title: 'love'
  *   });
  */
-utils.shallowMerge = function(source, destiny) {
+utils.shallowMerge = function (source, destiny) {
   for (var key in source) {
     if (source.hasOwnProperty(key)) {
       destiny[key] = source[key];
@@ -373,7 +366,7 @@ utils.shallowMerge = function(source, destiny) {
  * @param {String} string
  * @returns {String} - escaped string
  */
-utils.escape = function(string) {
+utils.escape = function (string) {
   return string.toString().replace(/[\n\s]*/gi, '');
 };
 
@@ -382,16 +375,16 @@ utils.escape = function(string) {
  * @param stream
  * @returns {Object} - return promise actually
  */
-utils.streamToPromise = function(stream) {
+utils.streamToPromise = function (stream) {
   if (util.isUndefined(stream.pipe)) return Promise.reject('argument is not stream');
 
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var destiny = new Buffer('');
 
-    stream.pipe(through(function(file, encoding, callback) {
+    stream.pipe(through(function (file, encoding, callback) {
       destiny = Buffer.concat([destiny, file.contents || file]);
       callback();
-    }, function(callback) {
+    }, function (callback) {
       resolve(destiny);
       callback();
     }));
@@ -403,25 +396,25 @@ utils.streamToPromise = function(stream) {
  * @param {String} fileName - full relative path for final file, relative to process.cwd()
  * @returns {Object} - transform stream pipable
  */
-utils.concat = function(fileName) {
+utils.concat = function (fileName) {
   var assetStorage = new Buffer(0);
   var separator = new Buffer('\n');
-  return through(function(file, enc, callback) {
+  return through(function (file, enc, callback) {
     assetStorage = Buffer.concat([assetStorage, file.contents, separator]);
     callback();
-  }, function(callback) {
+  }, function (callback) {
     this.push(new gutil.File({
       path: fileName,
       contents: assetStorage
     }));
     callback();
-  })
+  });
 };
 
 /**
  * just a noop function
  */
-utils.noop = function() {};
+utils.noop = function () {};
 
 // exports the object
 module.exports = utils;
