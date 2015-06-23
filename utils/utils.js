@@ -208,7 +208,7 @@ utils.getBlockFileSource = function(blocks) {
  * @returns {string} - final postfix
  */
 utils.resolvePostfix = function(postfix, block, debug) {
-  if (util.isNullOrUndefined(postfix)) return '';
+  if (postfix === null || typeof postfix === 'undefined') return '';
   if (util.isString(postfix) && postfix !== 'md5') return '?' + postfix;
 
   var content;
