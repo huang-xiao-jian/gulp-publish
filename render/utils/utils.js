@@ -37,6 +37,7 @@ var crypto = require('crypto');
 var vfs = require('vinyl-fs');
 var through = require('through-gulp');
 var gutil = require('gulp-util');
+var _ = require('underscore');
 
 // normal regular expression
 var startReg = /<!--\s+build:\w+\s+\/?[^\s]+\s+-->/gim;
@@ -200,8 +201,8 @@ utils.getBlockFileSource = function (blocks) {
  * @returns {string} - final postfix
  */
 utils.resolvePostfix = function (postfix, block, debug) {
-  if (util.isNullOrUndefined(postfix)) return '';
-  if (util.isString(postfix) && postfix !== 'md5') return '?' + postfix;
+  if (postfix === null || typeof postfix === 'undefined') return '';
+  if (_.isString(postfix) && postfix !== 'md5') return '?' + postfix;
 
   var content;
   var source = utils.prerenderOriginPath(utils.getBlockFilePath(block), debug);
@@ -215,7 +216,7 @@ utils.resolvePostfix = function (postfix, block, debug) {
     }
   }, new Buffer(''));
 
-  if (util.isFunction(postfix)) {
+  if (_.isFunction(postfix)) {
     return '?' + utils.escape(postfix.call(null, content));
   }
 
@@ -300,8 +301,8 @@ utils.resolveSourceToDestiny = function (blocks, options) {
 };
 
 utils.prerenderOriginPath = function (originPath, debug) {
-  if (util.isString(originPath)) return !debug ? [path.join('./', originPath)] : [path.join('./', 'test/fixture/', originPath)];
-  if (util.isArray(originPath)) {
+  if (_.isString(originPath)) return !debug ? [path.join('./', originPath)] : [path.join('./', 'test/fixture/', originPath)];
+  if (_.isArray(originPath)) {
     return originPath.map(function (value) {
       return !debug ? path.join('./', value) : path.join('./', 'test/fixture/', value);
     });
@@ -318,15 +319,15 @@ utils.prerenderOriginPath = function (originPath, debug) {
 utils.pathTraverse = function (originPath, flow, debug) {
   var destinyPath = utils.prerenderOriginPath(originPath, debug);
   var stream = vfs.src(destinyPath);
-  if (util.isArray(flow)) {
+  if (_.isArray(flow)) {
     for (var i = 0; i < flow.length; i++) {
       var generator = undefined,
           options = undefined;
-      if (util.isArray(flow[i])) {
+      if (_.isArray(flow[i])) {
         generator = flow[i][0];
         options = flow[i][1];
       }
-      if (util.isFunction(flow[i])) {
+      if (_.isFunction(flow[i])) {
         generator = flow[i];
         options = {};
       }
@@ -376,7 +377,7 @@ utils.escape = function (string) {
  * @returns {Object} - return promise actually
  */
 utils.streamToPromise = function (stream) {
-  if (util.isUndefined(stream.pipe)) return Promise.reject('argument is not stream');
+  if (_.isUndefined(stream.pipe)) return Promise.reject('argument is not stream');
 
   return new Promise(function (resolve, reject) {
     var destiny = new Buffer('');
