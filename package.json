@@ -38,7 +38,8 @@
     "gulp-uglify": "~1.1.0",
     "istanbul": "^0.3.13",
     "mocha": "~2.2.1",
-    "should": "~5.2.0"
+    "should": "~5.2.0",
+    "underscore": "^1.8.3"
   },
   "scripts": {
     "prepublish": "./node_modules/.bin/babel index.js -o render/index.js && ./node_modules/.bin/babel utils/ -d render/utils/",
