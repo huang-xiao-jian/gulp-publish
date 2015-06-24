@@ -22,9 +22,10 @@
     "iojs": ">=1.5.1"
   },
   "dependencies": {
+    "gulp-util": "~3.0.4",
     "through-gulp": "~0.3.8",
-    "vinyl-fs": "~1.0.0",
-    "gulp-util": "~3.0.4"
+    "underscore": "^1.8.3",
+    "vinyl-fs": "~1.0.0"
   },
   "devDependencies": {
     "babel": "^5.5.8",
@@ -38,8 +39,7 @@
     "gulp-uglify": "~1.1.0",
     "istanbul": "^0.3.13",
     "mocha": "~2.2.1",
-    "should": "~5.2.0",
-    "underscore": "^1.8.3"
+    "should": "~5.2.0"
   },
   "scripts": {
     "prepublish": "./node_modules/.bin/babel index.js -o render/index.js && ./node_modules/.bin/babel utils/ -d render/utils/",
